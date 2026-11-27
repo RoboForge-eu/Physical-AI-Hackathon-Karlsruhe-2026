@@ -456,7 +456,7 @@ function zeichneVorstellung() {
   const fertig = (Z?.training || []).filter((x) => x.state === "fertig").length;
   $("#v-zahlen").innerHTML = `<div><b>${ep}</b>Episoden aufgenommen</div><div><b>${fertig}</b>Modelle trainiert</div>
     <div><b>${(D?.modelle || []).length}</b>Modelle verfügbar</div>`;
-  $("#v-text").textContent = vorstellungText || "Schreibt hier, was euer System kann: Aufgabe, Ablauf, Skills, was gut lief, was nicht.";
+  $("#v-text").textContent = vorstellungText || t("Schreibt hier, was euer System kann: Aufgabe, Ablauf, Skills, was gut lief, was nicht.");
 }
 async function vorstellungSpeichern() {
   if (await tu(() => api("/api/datei", { pfad: "vorstellung.md", inhalt: $("#v-edit").value, abschnitt: "vorstellen" }), "Gespeichert.")) {

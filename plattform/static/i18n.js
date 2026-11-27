@@ -142,7 +142,7 @@ const EN = {
   "Was habt ihr geändert?": "What did you change?", "Team-Ordner hochladen": "Upload team folder",
   "Änderungen der Kollegen holen": "Get your teammates’ changes", "Datensatz mit hochladen": "Upload dataset too",
   "Modell veröffentlichen": "Publish model", "Noch kein Modell zum Teilen.": "No model to share yet.",
-  "Bitte zuerst anmelden.": "Please sign in first.", "nicht möglich": "not possible", "Zweig:": "Branch:",
+  "Bitte zuerst anmelden.": "Please sign in first.", "nicht möglich": "not possible", "nicht angemeldet": "not signed in", "Zweig:": "Branch:",
   "Präsentationsmodus": "Presentation mode", "Präsentation beenden (Esc)": "Leave presentation (Esc)",
   "Physical AI Hackathon Karlsruhe": "Physical AI Hackathon Karlsruhe", "Euer Team": "Your team",
   "Episoden aufgenommen": "episodes recorded", "Modelle trainiert": "models trained", "Modelle verfügbar": "models available",
@@ -403,7 +403,9 @@ const MUSTER = [
   [/^(\d+) Episoden (.+)$/, (m, a, b) => `${a} episodes ${tr(b)}`],
   [/^✔ in Startpose (.+)$/, (m, a) => `✔ in start pose ${a.replace(/Bas/g, "Bas").replace(/Sch/g, "Sho").replace(/Ell/g, "Elb").replace(/HdB/g, "WrF").replace(/HdD/g, "WrR").replace(/Gr /g, "Gr ")}`],
   [/^✖ nicht in Startpose (.+)$/, "✖ not in start pose $1"],
-  [/^· (\d+) von (\d+) Runden fertig(.*)$/, (m, a, b, c) => `· ${a} of ${b} rounds done${c ? " " + tr(c.trim()) : ""}`],
+  [/^· (\d+) von (\d+) Runden fertig( \(Vorschau, noch nicht begonnen\))?( · nächste:)?$/,
+    (m, a, b, c, d) => `· ${a} of ${b} rounds done${c ? " (preview, not started yet)" : ""}${d ? " · next:" : ""}`],
+  [/^(.+) Datensatz:$/, (m, a) => `${tr(a)} Dataset:`],
   [/^Runde (\d+)$/, "Round $1"], [/^Tischkante unten · Kreise (.+) cm um die Armbasis$/, "Table edge at bottom · circles $1 cm around the arm base"],
   [/^bei x (.+) cm, y (.+) cm$/, "at x $1 cm, y $2 cm"],
   // Harness
@@ -516,11 +518,17 @@ function textKnoten(n) {
     n.data = ziel;
   } else ORIGINAL.set(n, roh);
 }
+const ATTR = new WeakMap();                              // Element -> {attribut: schon uebersetzter Wert}
 function attribute(el) {
-  if (el.closest && el.closest(AUSNAHMEN)) return;
+  if (!el.getAttribute || (el.closest && el.closest("[data-kein-i18n], code, pre.log"))) return;
+  let fertig = ATTR.get(el);
   for (const a of ["title", "placeholder", "aria-label"]) {
-    const v = el.getAttribute && el.getAttribute(a);
-    if (v && el.dataset["i18n" + a] !== v) { const n = tr(v); el.setAttribute(a, n); el.dataset["i18n" + a] = n; }
+    const v = el.getAttribute(a);
+    if (!v || (fertig && fertig[a] === v)) continue;
+    const n = tr(v);
+    if (!fertig) ATTR.set(el, (fertig = {}));
+    fertig[a] = n;                                       // zuerst merken: die eigene Aenderung loest keine Schleife aus
+    if (n !== v) el.setAttribute(a, n);
   }
 }
 function uebersetzeBaum(wurzel) {
