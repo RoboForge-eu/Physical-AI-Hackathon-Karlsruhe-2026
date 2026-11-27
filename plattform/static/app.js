@@ -160,7 +160,7 @@ function zeichneStart() {
     $("#geraet-info").innerHTML = `<dl class="kv"><dt>Rechenwerk</dt><dd>${esc(g.name || g.geraet)}${g.speicher_gb ? ` · ${g.speicher_gb} GB` : ""}</dd>
       <dt>System</dt><dd>${esc({ win32: "Windows", darwin: "macOS", linux: "Linux" }[g.system] || g.system)}</dd>
       <dt>KI-Umgebung</dt><dd>${g.ki_umgebung === false ? "fehlt (siehe README)" : "ok"}</dd>
-      <dt>Empfehlung</dt><dd>${esc((g.empfehlung || "").toUpperCase())}</dd></dl>
+      <dt>Methode</dt><dd>ACT</dd></dl>
       <p class="klein leise" style="margin:8px 0 0">${esc(g.text || "")}</p>`;
   }
 }
@@ -321,7 +321,7 @@ async function datenLaden() {
   if (dv) ds.value = dv;
   const ms = $("#tr-methode"), mv = ms.value;
   ms.innerHTML = d.methoden.map((m) => `<option value="${esc(m.key)}">${esc(m.label)}</option>`).join("");
-  ms.value = mv || (Z?.geraet?.empfehlung) || "act";
+  ms.value = mv || "act";
   methodeGewaehlt(!mv);
   $("#modelle").innerHTML = d.modelle.length ? `<table><tr><th>Modell</th><th>Methode</th><th>Datensatz</th><th></th></tr>${d.modelle.map((m) =>
     `<tr><td><code>${esc(m.name)}</code></td><td>${esc(m.method)}</td><td>${esc(m.dataset ? m.dataset.split(/[\\/]/).pop() : "")}</td>
@@ -355,7 +355,7 @@ async function modellTesten(name) {
 function zeit(s) { if (s == null) return ""; s = Math.round(s); const h = Math.floor(s / 3600), m = Math.round((s % 3600) / 60); return h ? `${h} h ${m} min` : `${m} min`; }
 function zeichneTrainings() {
   const g = Z.geraet;
-  if (g) $("#geraet-hinweis").innerHTML = `<b>${esc(g.name || g.geraet)}:</b> ${esc(g.text)}`;
+  if (g) $("#geraet-hinweis").innerHTML = `<b>${esc(g.name || g.geraet)}:</b> ACT läuft auf diesem Rechner.`;
   const tr = Z.training || [];
   const knopf = (t, was, text, cls = "") => `<button class="${cls}" onclick="trAktion('${esc(t.name)}','${was}')">${text}</button>`;
   $("#trainings").innerHTML = tr.length ? `<table><tr><th>Training</th><th>Zustand</th><th>Fortschritt</th><th>Rest</th><th></th></tr>${tr.slice().reverse().map((t) => {

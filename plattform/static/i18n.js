@@ -12,7 +12,7 @@ document.documentElement.lang = SPRACHE;
 
 const EN = {
   // ---------------- Kopf, Navigation, allgemein
-  "Hackathon": "Hackathon", "Datum": "Date", "Anmelden": "Sign in", "Abmelden": "Sign out", "Team wählen": "Choose team", "z. B. BLUE-1": "e.g. BLUE-1", "Team": "Team",
+  "Hackathon": "Hackathon", "Datum": "Date", "Anmelden": "Sign in", "Abmelden": "Sign out", "Team wählen": "Choose team", "ACT läuft auf diesem Rechner.": "ACT runs on this computer.", "Diese Methode ist hier nicht freigeschaltet (nur ACT).": "This method is not enabled here (ACT only).", "z. B. BLUE-1": "e.g. BLUE-1", "Team": "Team",
   "Hackathon-Plan": "Hackathon schedule", "Hackathon-Plan und Erinnerungen": "Hackathon schedule and reminders",
   "Team-Profil": "Team profile", "Alle Arme sofort stoppen und ablegen": "Stop all arms now and put them down",
   "Alle Arme sofort stoppen und ablegen (F12)": "Stop all arms now and put them down (F12)",

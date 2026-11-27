@@ -131,9 +131,15 @@
     <section id="trainieren">
       <div class="abschnitt-kopf"><span class="nr">3</span><h2>VLA trainieren</h2></div>
       <div class="abschnitt-inhalt">
-        <p class="einleitung"><span class="de"><b>ACT</b> lernt genau eine Aufgabe, ist klein und schnell trainiert. <b>SmolVLA</b> versteht Sätze und
-          kann mehrere Aufgaben, braucht aber eine NVIDIA-Grafikkarte. Das Training läuft im Hintergrund weiter, auch wenn diese Seite zu ist.</span><span class="en"><b>ACT</b> learns exactly one task, is small and trains fast. <b>SmolVLA</b> understands sentences and
-          can do several tasks, but needs an NVIDIA graphics card. Training keeps running in the background, even when this page is closed.</span></p>
+        <p class="einleitung"><span class="de">Am Hackathon trainiert ihr mit <b>ACT</b>: lernt genau eine Aufgabe, ist klein und schnell trainiert, läuft auf
+          jedem Rechner. Das Training läuft im Hintergrund weiter, auch wenn diese Seite zu ist.</span><span class="en">At the hackathon you train with <b>ACT</b>: it learns
+          exactly one task, is small, trains fast and runs on any computer. Training keeps running in the background, even when this page is closed.</span></p>
+        <details class="klein leise" data-kein-i18n style="margin:-4px 0 10px"><summary><span class="de">Andere Modelle?</span><span class="en">Other models?</span></summary>
+          <span class="de">Für Fortgeschrittene: In <code>plattform/server.py</code> steht <code>ERLAUBTE_METHODEN</code>. Dort einen Schlüssel aus
+          <code>ki/methods.py</code> eintragen (z. B. <code>"smolvla"</code>, braucht eine NVIDIA-Grafikkarte) oder dort eine eigene Methode anlegen.
+          Danach die App neu starten.</span><span class="en">For advanced users: <code>plattform/server.py</code> has <code>ERLAUBTE_METHODEN</code>. Add a key
+          from <code>ki/methods.py</code> there (e.g. <code>"smolvla"</code>, needs an NVIDIA graphics card) or add your own method in that file.
+          Then restart the app.</span></details>
         <div id="geraet-hinweis" class="hinweis"></div>
         <div class="karte"><div class="kkopf"><b>Neues Training</b></div><div class="kinhalt">
           <div class="zeile" style="align-items:flex-end">

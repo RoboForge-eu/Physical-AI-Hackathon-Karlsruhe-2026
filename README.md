@@ -22,15 +22,11 @@ Requirement: **Python 3.12** from python.org (macOS: the "universal2 installer",
 The app opens in its own window (http://127.0.0.1:8780). Sign in with the **team code** from your note.
 Windows: `icons/plattform_verknuepfung.ps1` creates a desktop/taskbar shortcut.
 
-### Which computer trains what?
+### Training
 
-| Computer | ACT | SmolVLA |
-|---|---|---|
-| Windows/Linux with NVIDIA graphics card | good | good |
-| MacBook with Apple chip (M1-M4) | good (1-3 h) | very slow |
-| without a suitable graphics card | slow | not useful |
-
-The software detects this itself and suggests the right method.
+At the hackathon every team trains its VLA with **ACT** (small, fast, runs on Windows, Mac and Linux;
+with an NVIDIA graphics card it is fastest). Other models can be enabled in `plattform/server.py`
+(`ERLAUBTE_METHODEN`), see the hint "Other models?" in section 3 of the app.
 
 ## Your team folder
 

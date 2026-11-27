@@ -142,7 +142,7 @@ class App:
             sets.append({"name": d.name, "task": d.meta.get("task", ""), "episoden": len(d.episodes()),
                          "arm": d.meta.get("arm"), "kameras": d.meta.get("cameras")})
         return {"datensaetze": sets, "modelle": jobs.models(),
-                "methoden": [m.info() for m in methods.all_methods()],
+                "methoden": [m.info() for m in methods.all_methods() if m.key in ERLAUBTE_METHODEN],
                 "plaene": [{"id": i, "name": n} for i, n in P.definitions()]}
 
     def _team_plaene_uebernehmen(self):
@@ -273,6 +273,11 @@ def sprache_setzen(s):
     d["sprache"] = s
     with open(pfad, "w", encoding="utf-8") as f:
         json.dump(d, f, ensure_ascii=False, indent=1)
+# Trainingsmethoden, die die App anbietet. Am Hackathon nur ACT.
+# Weitere Modelle freischalten: Schluessel aus ki/methods.py hier eintragen (z. B. "smolvla").
+# Ein ganz neues Modell: Klasse in ki/methods.py anlegen und in all_methods() aufnehmen.
+ERLAUBTE_METHODEN = ("act",)
+
 ARBEIT_SKILLS = {"station.oeffnen", "station.uebernehmen", "station.assistent", "station.quelle", "station.neustart",
                  "station.video", "steuer.aufnahme", "steuer.plan", "steuer.startpose", "ki.modell_waehlen"}
 
@@ -428,6 +433,8 @@ class Handler(BaseHTTPRequestHandler):
                     APP.zustand.arbeit(b.get("abschnitt") or "harness", f"{b['name']} {b.get('args', {}).get('was', '')}")
                 return self._send(200, {"ok": True, "ergebnis": res})
             if p == "/api/training/start":
+                if b.get("methode") not in ERLAUBTE_METHODEN:
+                    raise ValueError("Diese Methode ist hier nicht freigeschaltet (nur ACT).")
                 job = APP.queue().add(b["datensatz"], b["methode"], int(b["schritte"]) if b.get("schritte") else None)
                 APP.zustand.arbeit("trainieren", f"Training {job.name} gestartet")
                 return self._send(200, {"name": job.name})
