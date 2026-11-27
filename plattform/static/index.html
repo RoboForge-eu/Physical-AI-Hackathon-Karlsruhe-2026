@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="de">
+<html lang="de" data-sprache="__SPRACHE__">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,6 +10,7 @@
 <link rel="apple-touch-icon" href="/static/icon-192.png">
 <link rel="manifest" href="/static/app.webmanifest">
 <link rel="stylesheet" href="/static/app.css">
+<script src="/static/i18n.js"></script>
 <!-- KERN-SEITE · Teams bauen ihre Oberflaeche in teams/<team>/ui/index.html (erscheint im Abschnitt "Interface"). -->
 </head>
 <body>
@@ -70,11 +71,11 @@
           <div class="karte akzent"><div class="kkopf"><b>Team</b></div><div class="kinhalt" id="login-bereich"></div></div>
           <div class="karte"><div class="kkopf"><b>Ablauf</b></div><div class="kinhalt">
             <ol class="schritte">
-              <li><b>Roboter einrichten:</b> Arm prüfen, Kameras, Leader steuert Follower.</li>
-              <li><b>Daten aufnehmen:</b> mit dem Aufnahmeplan vormachen.</li>
-              <li><b>VLA trainieren:</b> auf diesem Rechner rechnen lassen.</li>
-              <li><b>Orchestrator bauen:</b> VLA, Code-Skills und Kameraprüfung verbinden.</li>
-              <li><b>Interface und Demo:</b> eure Oberfläche, teilen, vorstellen.</li>
+              <li><span class="de"><b>Roboter einrichten:</b> Arm prüfen, Kameras, Leader steuert Follower.</span><span class="en"><b>Set up the robot:</b> check the arm, cameras, leader controls follower.</span></li>
+              <li><span class="de"><b>Daten aufnehmen:</b> mit dem Aufnahmeplan vormachen.</span><span class="en"><b>Record data:</b> demonstrate with the recording plan.</span></li>
+              <li><span class="de"><b>VLA trainieren:</b> auf diesem Rechner rechnen lassen.</span><span class="en"><b>Train a VLA:</b> let this computer do the training.</span></li>
+              <li><span class="de"><b>Orchestrator bauen:</b> VLA, Code-Skills und Kameraprüfung verbinden.</span><span class="en"><b>Build the orchestrator:</b> connect VLA, code skills and camera checks.</span></li>
+              <li><span class="de"><b>Interface und Demo:</b> eure Oberfläche, teilen, vorstellen.</span><span class="en"><b>Interface and demo:</b> your UI, share, present.</span></li>
             </ol></div></div>
           <div class="karte"><div class="kkopf"><b>Dieser Rechner</b></div><div class="kinhalt" id="geraet-info"><span class="leise">wird ermittelt ...</span></div></div>
         </div>
@@ -85,9 +86,11 @@
     <section id="harness">
       <div class="abschnitt-kopf"><span class="nr">1</span><h2>Roboter einrichten</h2></div>
       <div class="abschnitt-inhalt">
-        <p class="einleitung">Alles aus dem <b>Harness</b>: Arm übernehmen, Kameras, Kalibrieren, Spannung, Arbeitsbereich, Netz.
+        <p class="einleitung"><span class="de">Alles aus dem <b>Harness</b>: Arm übernehmen, Kameras, Kalibrieren, Spannung, Arbeitsbereich, Netz.
           Jede Bewegung bestätigt ein <b>Mensch vor Ort</b> im Dialog. Stop und Ablegen gehen immer, <b>F12</b> legt alle Arme ab.
-          Nie 12 V an die Arme anschließen.</p>
+          Nie 12 V an die Arme anschließen.</span><span class="en">Everything from the <b>harness</b>: take over the arm, cameras, calibration, voltage, workspace, network.
+          Every movement is approved by a <b>person on site</b> in a dialog. Stop and put-down always work, <b>F12</b> puts all arms down.
+          Never connect 12 V to the arms.</span></p>
         <div id="harness-status" class="hinweis"></div>
         <div id="station"></div>
         <details class="karte" id="arme-finden" style="margin-top:10px"><summary class="kkopf"><b>Arme finden</b>
@@ -100,8 +103,9 @@
     <section id="aufnehmen">
       <div class="abschnitt-kopf"><span class="nr">2</span><h2>Daten aufnehmen</h2></div>
       <div class="abschnitt-inhalt">
-        <p class="einleitung">Ein VLA lernt durch <b>Vormachen</b>. Der Aufnahmeplan sagt für jede Runde, <b>wo</b> der Gegenstand
-          stehen soll. So lernt das Modell viele verschiedene Lagen statt immer derselben Bewegung.</p>
+        <p class="einleitung"><span class="de">Ein VLA lernt durch <b>Vormachen</b>. Der Aufnahmeplan sagt für jede Runde, <b>wo</b> der Gegenstand
+          stehen soll. So lernt das Modell viele verschiedene Lagen statt immer derselben Bewegung.</span><span class="en">A VLA learns from <b>demonstrations</b>. For every round the recording plan says <b>where</b> the object
+          should stand. That way the model learns many different positions instead of always the same movement.</span></p>
         <div class="karte akzent" style="margin-bottom:10px"><div class="kkopf"><b>Steuermodus</b>
             <span class="leise">alle Kameras · Aufnahme · Aufnahmeplan · Tasten F3–F8</span></div>
           <div id="steuermodus"><p class="leise" style="padding:10px;margin:0">Wartet auf den Harness ...</p></div></div>
@@ -111,10 +115,10 @@
           <div style="display:grid;gap:10px;align-content:start">
             <div class="karte akzent"><div class="kkopf"><b>So nimmst du auf</b></div><div class="kinhalt">
               <ol class="schritte">
-                <li>Gegenstand genau dort hinstellen, wo die Karte die <b>gelbe Markierung</b> zeigt.</li>
-                <li>Im Steuermodus <b>Aufnahme starten</b> und mit dem Leader vormachen: hinfahren, greifen, anheben.</li>
-                <li>Kurz still halten, dann <b>Stop</b>. Gut? <b>Behalten</b>, sonst <b>Verwerfen</b>.</li>
-                <li>Nächste Runde: Gegenstand an die neue Stelle. Ziel: 40-50 Episoden.</li>
+                <li><span class="de">Gegenstand genau dort hinstellen, wo die Karte die <b>gelbe Markierung</b> zeigt.</span><span class="en">Place the object exactly where the map shows the <b>yellow marker</b>.</span></li>
+                <li><span class="de">Im Steuermodus <b>Aufnahme starten</b> und mit dem Leader vormachen: hinfahren, greifen, anheben.</span><span class="en">In control mode, <b>start recording</b> and demonstrate with the leader: move there, grasp, lift.</span></li>
+                <li><span class="de">Kurz still halten, dann <b>Stop</b>. Gut? <b>Behalten</b>, sonst <b>Verwerfen</b>.</span><span class="en">Hold still briefly, then <b>Stop</b>. Good? <b>Keep</b>, otherwise <b>Discard</b>.</span></li>
+                <li><span class="de">Nächste Runde: Gegenstand an die neue Stelle. Ziel: 40-50 Episoden.</span><span class="en">Next round: move the object to the new spot. Goal: 40–50 episodes.</span></li>
               </ol>
             </div></div>
             <div class="karte"><div class="kkopf"><b>Datensätze</b></div><div id="datensaetze"></div></div>
@@ -127,8 +131,9 @@
     <section id="trainieren">
       <div class="abschnitt-kopf"><span class="nr">3</span><h2>VLA trainieren</h2></div>
       <div class="abschnitt-inhalt">
-        <p class="einleitung"><b>ACT</b> lernt genau eine Aufgabe, ist klein und schnell trainiert. <b>SmolVLA</b> versteht Sätze und
-          kann mehrere Aufgaben, braucht aber eine NVIDIA-Grafikkarte. Das Training läuft im Hintergrund weiter, auch wenn diese Seite zu ist.</p>
+        <p class="einleitung"><span class="de"><b>ACT</b> lernt genau eine Aufgabe, ist klein und schnell trainiert. <b>SmolVLA</b> versteht Sätze und
+          kann mehrere Aufgaben, braucht aber eine NVIDIA-Grafikkarte. Das Training läuft im Hintergrund weiter, auch wenn diese Seite zu ist.</span><span class="en"><b>ACT</b> learns exactly one task, is small and trains fast. <b>SmolVLA</b> understands sentences and
+          can do several tasks, but needs an NVIDIA graphics card. Training keeps running in the background, even when this page is closed.</span></p>
         <div id="geraet-hinweis" class="hinweis"></div>
         <div class="karte"><div class="kkopf"><b>Neues Training</b></div><div class="kinhalt">
           <div class="zeile" style="align-items:flex-end">
@@ -148,9 +153,11 @@
     <section id="orchestrator">
       <div class="abschnitt-kopf"><span class="nr">4</span><h2>Orchestrator &amp; Agentic Skills</h2></div>
       <div class="abschnitt-inhalt">
-        <p class="einleitung">Der <b>Orchestrator</b> verbindet die Bausteine zu einem Ablauf: VLA-Skills (gelernt), Code-Skills (von
+        <p class="einleitung"><span class="de">Der <b>Orchestrator</b> verbindet die Bausteine zu einem Ablauf: VLA-Skills (gelernt), Code-Skills (von
           eurem Coding-Agent geschrieben) und Bildverarbeitung (prüfen per Kamera). Am bequemsten öffnet ihr den Team-Ordner
-          in eurem Editor mit Coding-Agent; <code>AGENTS.md</code> erklärt ihm alles.</p>
+          in eurem Editor mit Coding-Agent; <code>AGENTS.md</code> erklärt ihm alles.</span><span class="en">The <b>orchestrator</b> connects the building blocks into one flow: VLA skills (learned), code skills (written by
+          your coding agent) and vision (checking with the camera). The easiest way: open your team folder
+          in your editor with a coding agent; <code>AGENTS.md</code> explains everything to it.</span></p>
         <div class="hinweis" id="team-ordner-hinweis"></div>
         <div class="editor">
           <div>
@@ -177,8 +184,9 @@
         <button style="height:24px" onclick="$('#team-ui').src='/team-ui/?t='+Date.now()">Neu laden</button>
         <a class="knopf" style="height:24px" href="/team-ui/" target="_blank">Eigenes Fenster</a></div>
       <div class="abschnitt-inhalt">
-        <p class="einleitung">Hier erscheint eure eigene Oberfläche: <code>ui/index.html</code> im Team-Ordner. Sie ruft den Harness
-          über <code>/api/skill</code> auf; Bewegungen bestätigt weiter ein Mensch vor Ort.</p>
+        <p class="einleitung"><span class="de">Hier erscheint eure eigene Oberfläche: <code>ui/index.html</code> im Team-Ordner. Sie ruft den Harness
+          über <code>/api/skill</code> auf; Bewegungen bestätigt weiter ein Mensch vor Ort.</span><span class="en">Your own UI appears here: <code>ui/index.html</code> in your team folder. It calls the harness
+          via <code>/api/skill</code>; movements are still approved by a person on site.</span></p>
         <iframe class="team-ui" id="team-ui" src="about:blank" title="Team-Interface"></iframe>
       </div>
     </section>
@@ -187,8 +195,9 @@
     <section id="teilen">
       <div class="abschnitt-kopf"><span class="nr">6</span><h2>Teilen</h2></div>
       <div class="abschnitt-inhalt">
-        <p class="einleitung"><b>Code</b> kommt auf GitHub (nur euer Team-Ordner), <b>Modelle und Datensätze</b> auf Hugging Face.
-          Die Zugänge stecken im Team-Paket, ihr müsst euch nirgends anmelden.</p>
+        <p class="einleitung"><span class="de"><b>Code</b> kommt auf GitHub (nur euer Team-Ordner), <b>Modelle und Datensätze</b> auf Hugging Face.
+          Die Zugänge stecken im Team-Paket, ihr müsst euch nirgends anmelden.</span><span class="en"><b>Code</b> goes to GitHub (only your team folder), <b>models and datasets</b> to Hugging Face.
+          The access is in your team package, you don’t need to sign in anywhere.</span></p>
         <div class="raster">
           <div class="karte"><div class="kkopf"><b>Code</b><span class="leise">GitHub</span></div><div class="kinhalt">
             <div id="git-info" class="klein leise" style="margin-bottom:8px"></div>

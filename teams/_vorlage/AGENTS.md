@@ -1,91 +1,93 @@
-# Hinweise fuer Coding-Agents (Claude Code, Codex, Cursor ...)
+# Notes for coding agents (Claude Code, Codex, Cursor ...)
 
-Du arbeitest im **Team-Ordner** eines Teams beim *Physical AI Hackathon Karlsruhe* (28.11.2026) mit dem
-**Physical AI Harness by RoboForge**. Sprache im Projekt: Deutsch, kurz und einfach.
+You are working in the **team folder** of a team at the *Physical AI Hackathon Karlsruhe* (28 Nov 2026) with the
+**Physical AI Harness by RoboForge**. Keep answers short and simple. The code base uses German names for skills,
+functions and result keys (e.g. `greifer` = gripper, `sitzung` = session, `haelt_etwas` = is holding something);
+`skills.liste` describes every skill.
 
-## Die Aufgabe des Hackathons
+## The hackathon task
 
-Ein SO-101-Roboterarm legt drei Bauteile in die richtigen Faecher und prueft das Ergebnis per Kamera. Liegt die
-Montageplatte schraeg oder ist ein Fach belegt, soll der Ablauf den Fehler erkennen, wenn moeglich korrigieren oder
-begruendet stoppen. Drei Bausteine, ein Ablauf:
+An SO-101 robot arm places three parts into the right slots and checks the result with a camera. If the mounting
+plate is tilted or a slot is occupied, the flow should detect the error, fix it if possible, or stop with a reason.
+Three building blocks, one flow:
 
-| Baustein | Was | Wo |
+| Building block | What | Where |
 |---|---|---|
-| **VLA** (Imitation Learning) | gelernte Bewegungen, z. B. "Teil greifen" | Abschnitt *VLA trainieren*; Aufnahmeplaene in `plaene/` |
-| **Code-Skills** (Agentic Robotics) | Python-Funktionen, die Harness-Skills aufrufen, messen, pruefen | `skills/` |
-| **Bildverarbeitung** | Kamerabild pruefen (Fach belegt? Platte schraeg?) | `skills/` (OpenCV, kleine Modelle) |
-| **Orchestrator** | verbindet alles zu einem Ablauf | `orchestrator.py` |
+| **VLA** (imitation learning) | learned movements, e.g. "grasp a part" | section *3 · Training*; recording plans in `plaene/` |
+| **Code skills** (agentic robotics) | Python functions that call harness skills, measure, check | `skills/` |
+| **Vision** | check the camera image (slot occupied? plate tilted?) | `skills/` (OpenCV, small models) |
+| **Orchestrator** | connects everything into one flow | `orchestrator.py` |
 
-## Wo du baust – und wo nicht (wichtig)
+## Where you build – and where not (important)
 
-Die Plattform ist fertig und fuer Einsteiger gemacht. **Baue sie nicht neu.** Erweitere nur die Team-Bausteine:
+The platform is finished and made for beginners. **Do not rebuild it.** Only extend the team building blocks:
 
-| Erweitern (euer Teil) | Datei im Team-Ordner | erscheint in der App |
+| Extend (your part) | File in the team folder | shows up in the app |
 |---|---|---|
-| Ablauf / Orchestrator | `orchestrator.py` | 4 · Orchestrator |
-| Code-Skills, Bildverarbeitung | `skills/*.py` | 4 · Orchestrator (ueber `orchestrator.py`) |
-| Eigenes Interface | `ui/index.html` (+ eigene .js/.css daneben) | 5 · Interface |
-| Trainingsplan (Aufnahmeplan fuer ein VLA) | `plaene/<id>.json` (Vorlage: `plaene/README.md`, Beispiel `../../plaene/elektrodose.json`) | 2 · Daten (Steuermodus) und 3 · Training |
-| Praesentation | `vorstellung.md` | 7 · Demo |
+| Flow / orchestrator | `orchestrator.py` | 4 · Orchestrator |
+| Code skills, vision | `skills/*.py` | 4 · Orchestrator (via `orchestrator.py`) |
+| Your own interface | `ui/index.html` (+ your own .js/.css next to it) | 5 · Interface |
+| Training plan (recording plan for a VLA) | `plaene/<id>.json` (guide: `plaene/README.md`, example `../../plaene/elektrodose.json`) | 2 · Data (control mode) and 3 · Training |
+| Presentation | `vorstellung.md` | 7 · Demo |
 
-**Nicht aendern** (Kern, gilt fuer alle Teams, Dateien sind mit `KERN-DATEI` markiert): `plattform/` (Webseite und
-Server), `ros.py` und `webstation.py` (Harness, Sicherheit), `ki/` (Aufnahme, Training), `cameras.py`, `oak.py`,
-`calibration/`, `config.json`. Fehlt dir eine Funktion des Harness, nutze die vorhandenen Skills (`skills.liste`)
-oder baue einen Code-Skill in `skills/`. Brauchst du wirklich eine Aenderung am Kern: kurz begruenden und die
-Veranstalter fragen.
+**Do not change** (core, shared by all teams, files are marked `KERN-DATEI` = core file): `plattform/` (web page and
+server), `ros.py` and `webstation.py` (harness, safety), `ki/` (recording, training), `cameras.py`, `oak.py`,
+`calibration/`, `config.json`. If a harness function is missing, use the existing skills (`skills.liste`) or build
+a code skill in `skills/`. If you really need a core change: give a short reason and ask the organizers.
 
-## Was du hier tun darfst
+## What you may do here
 
-- **Nur in diesem Ordner** arbeiten (`teams/<team>/`). Nur dieser Ordner wird geteilt (GitHub-Zweig des Teams);
-  Aenderungen ausserhalb werden beim Hochladen ignoriert.
-- `orchestrator.py`: der Ablauf. Startbar im Abschnitt *Orchestrator & Skills* (Knopf "starten").
-- `skills/*.py`: eigene Code-Skills (Funktionen, die `ros.call(...)` benutzen).
-- `plaene/<id>.json`: eigene **Aufnahmeplaene** (Trainingsplaene fuer VLAs). Anleitung: `plaene/README.md`.
-  Die Plattform uebernimmt sie automatisch; sie erscheinen dann im Steuermodus zur Aufnahme.
-- `ui/index.html`: das **eigene Interface** des Teams, angezeigt im Abschnitt *Euer Interface*.
-- `vorstellung.md`: Text fuer die Abschlusspraesentation.
+- Work **only in this folder** (`teams/<team>/`). Only this folder is shared (the team branch on GitHub); changes
+  outside are ignored when uploading.
+- `orchestrator.py`: the flow. Start it in section *4 · Orchestrator* (button "Start orchestrator.py").
+- `skills/*.py`: your own code skills (functions that use `ros.call(...)`).
+- `plaene/<id>.json`: your own **recording plans** (training plans for VLAs). Guide: `plaene/README.md`.
+  The app picks them up automatically; they then appear in control mode for recording.
+- `ui/index.html`: the team interface, shown in section *5 · Interface*.
+- `vorstellung.md`: text for the final presentation.
 
-## Schnittstelle zum Roboter (Harness-Skills)
+## Interface to the robot (harness skills)
 
 ```python
-from ros_client import RosClient          # liegt im Programmordner, PYTHONPATH ist gesetzt
+from ros_client import RosClient          # lives in the program folder, PYTHONPATH is set
 ros = RosClient("team")
-ros.call("skills.liste")                  # alle Skills mit Beschreibung und Parametern
-ros.call("arme.liste")
-ros.call("kamera.bild", arm="follower", kamera="arm")      # JPEG als Base64
-ros.call("modelle.liste")
+ros.call("skills.liste")                  # all skills with description and parameters
+ros.call("arme.liste")                    # arms
+ros.call("kamera.bild", arm="follower", kamera="arm")      # JPEG as Base64
+ros.call("modelle.liste")                 # trained models
 ```
 
-Wichtige Skills: `sitzung.anfragen`, `sitzung.status`, `sitzung.beenden`, `modell.vorladen`, `modell.ausfuehren`,
-`pose.anfahren`, `greifer.setzen`, `greifer.pruefen`, `vision.messen`, `arm.ablegen`, `notablage`.
+Important skills: `sitzung.anfragen` (request work session), `sitzung.status`, `sitzung.beenden` (end session),
+`modell.vorladen` (preload model), `modell.ausfuehren` (run model), `pose.anfahren` (move to saved pose),
+`greifer.setzen` (set gripper), `greifer.pruefen` (check gripper), `vision.messen` (measure), `arm.ablegen` (put
+down), `notablage` (emergency put-down).
 
-Kameras: `kamera.bild` (Kameras des Arms), `kamera.plaetze` (alle Plaetze), `kamera.platz_bild` (z. B. die zweite
-Uebersichtskamera **OAK-D Lite** zum Experimentieren) und `kamera.tiefe` (OAK-D Lite: Entfernung in mm an einer
-Bildstelle, optional als Tiefenbild).
+Cameras: `kamera.bild` (the arm cameras), `kamera.plaetze` (all slots), `kamera.platz_bild` (e.g. the second
+overview camera **OAK-D Lite** for experiments) and `kamera.tiefe` (OAK-D Lite: distance in mm at an image
+position, optionally as a depth image).
 
-Befehle mit `station.*`, `steuer.*`, `spiegel.*` und `web.*` gehoeren der Oberflaeche (Bedienung vor Ort). Rufe sie
-aus Orchestrator oder Skills **nie** auf.
+Commands starting with `station.*`, `steuer.*`, `spiegel.*` and `web.*` belong to the app (operation on site).
+**Never** call them from the orchestrator or skills.
 
-Im Interface (Browser) dasselbe per:
+In the interface (browser) the same via:
 
 ```js
 fetch("/api/skill", {method: "POST", headers: {"Content-Type": "application/json", "X-RF": "1"},
                      body: JSON.stringify({name: "arme.liste", args: {}})})
 ```
 
-## Sicherheit (verbindlich)
+## Safety (binding)
 
-- **Keine Armbewegung ohne Mensch vor Ort und Zustimmung.** Bewegende Skills funktionieren nur in einer
-  Arbeitssitzung, die ein Mensch am Harness-Fenster freigibt (`sitzung.anfragen` zeigt den Dialog vor Ort).
-  Versuche nie, diese Freigabe zu umgehen.
-- Bei Unklarheit: `arm.ablegen` (immer erlaubt) oder `notablage`.
-- Keine Geheimnisse (Tokens, Passwoerter) in Dateien schreiben oder ausgeben.
-- Nie 12 V an die Arme. Servo-EEPROM nicht veraendern.
-- Bewegungen langsam testen (`grad_pro_s` klein), Hand am Stop-Knopf.
+- **No arm movement without a person on site and their consent.** Moving skills only work in a work session that
+  a person approves in the app (`sitzung.anfragen` shows the dialog on site). Never try to bypass this approval.
+- When in doubt: `arm.ablegen` (always allowed) or `notablage`.
+- Never write or print secrets (tokens, passwords).
+- Never 12 V to the arms. Do not change the servo EEPROM.
+- Test movements slowly (small `grad_pro_s`), hand on the stop button.
 
-## Tipps
+## Tips
 
-- Erst lesen (`arme.liste`, `kamera.bild`), dann bewegen.
-- Gelernt wird nur, was Sehen braucht. Alles mit festem Ort wird fest programmiert (Posen im Steuermodus mit
-  `pose.merken` einrichten und mit `pose.anfahren` nutzen).
-- Erfolg pruefen ohne Kamera: `greifer.pruefen` (schliesst der Greifer ganz, ist nichts drin).
+- Read first (`arme.liste`, `kamera.bild`), then move.
+- Only learn what needs vision. Everything with a fixed location is programmed (set up poses in control mode with
+  `pose.merken` and use them with `pose.anfahren`).
+- Check success without a camera: `greifer.pruefen` (if the gripper closes completely, nothing is inside).

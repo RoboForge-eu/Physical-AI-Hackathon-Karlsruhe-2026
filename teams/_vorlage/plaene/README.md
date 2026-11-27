@@ -1,10 +1,10 @@
-# Eigene Aufnahmeplaene
+# Your own recording plans
 
-Ein Aufnahmeplan sagt fuer jede Runde, **wo** ein Gegenstand stehen soll. Beispiel: `plaene/elektrodose.json` im
-Programmordner (50 Runden, Dose an wechselnden Stellen im Halbring vor dem Arm).
+A recording plan says for every round **where** an object should stand. Example: `plaene/elektrodose.json` in the
+program folder (50 rounds, a junction box at changing spots in the half ring in front of the arm).
 
-Eigenen Plan anlegen: die Beispieldatei hierher kopieren, `id` aendern (gleich dem Dateinamen ohne `.json`),
-dann `name`, `datensatz`, `objekt`, `bauteile` und `geometrie` (Groesse in cm, Radien um die Armbasis) anpassen.
-Die Plattform uebernimmt den Plan automatisch; im Steuermodus erscheint er dann zur Aufnahme.
+Create your own plan: copy the example file here, change `id` (same as the file name without `.json`),
+then adapt `name`, `datensatz` (dataset), `objekt` (object), `bauteile` (parts) and `geometrie` (size in cm, radii
+around the arm base). The app picks the plan up automatically; it then appears in control mode for recording.
 
-Tipp fuer den Coding-Agent: "Schreibe einen Aufnahmeplan fuer <Gegenstand>, <n> Runden, Radius 16-38 cm."
+Tip for your coding agent: "Write a recording plan for <object>, <n> rounds, radius 16-38 cm."

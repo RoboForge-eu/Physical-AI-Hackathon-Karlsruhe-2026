@@ -66,6 +66,13 @@ function zeichneKopf() {
     <dt>Angemeldet</dt><dd>${esc(t.angemeldet || "")}</dd></dl>
     <div class="zeile" style="margin-top:10px"><button onclick="abmelden()">Abmelden</button></div>`
     : `<h3>Nicht angemeldet</h3><p>Mit dem Team-Code anmelden (Abschnitt 0 · Start).</p><button class="haupt" onclick="geheZu('start')">Zum Anmelden</button>`;
+  $("#profil-inhalt").insertAdjacentHTML("beforeend", `<div class="zeile sprache-wahl" style="margin-top:14px;padding-top:10px;border-top:1px solid var(--linie)">
+    <span class="leise klein">Sprache</span><button class="${SPRACHE === "de" ? "an" : ""}" onclick="spracheSetzen('de')">Deutsch</button>
+    <button class="${SPRACHE === "en" ? "an" : ""}" onclick="spracheSetzen('en')">English</button></div>`);
+}
+async function spracheSetzen(s) {
+  if (s === SPRACHE) return;
+  if (await tu(() => api("/api/sprache", { sprache: s }))) location.reload();
 }
 async function abmelden() { await tu(() => api("/api/logout", {}), "Abgemeldet."); laden(); }
 
@@ -171,6 +178,25 @@ function armeFindenPrompt() {
   const kit = Z.kit || "(Ordner der Software)";
   const py = Z.system === "win32" ? "python" : "python3";
   const station = Z.team?.station?.name || "Setup 1";
+  if (SPRACHE === "en") return `You are helping me set up an SO-101 robot arm (follower + leader) for the Physical AI Harness by RoboForge.
+
+IMPORTANT: You need access to this folder. The software lives there as source code:
+${kit}
+Work only in this folder. If you have no access, tell me to start you there or to grant access to the folder.
+
+First read ${kit}${Z.system === "win32" ? "\\" : "/"}AGENTS.md (rules and structure).
+Rules: Do NOT move the arm. Do not write any values to the servos (EEPROM). Never 12 V. Never print keys or tokens.
+
+Task: Find out which servo board (USB serial number) belongs to the follower and which to the leader, and register both.
+1. Run in the folder: ${py} -m plattform.station boards
+   (lists all boards with port and serial number; opens no port)
+2. Ask me to unplug the USB cable of the LEADER arm for a moment, then run the command again.
+   The board that is missing is the leader. Then I should plug it back in.
+3. Run: ${py} -m plattform.station arme --follower <follower serial> --leader <leader serial> --name "${station}"
+   (writes config.json; cameras and rest pose are kept)
+4. Tell me to click “Restart harness” in the Physical AI Harness under “1 · Robot” (or start it if it is not running).
+   Both boards should then show as connected there.
+Briefly explain each step before you run it.`;
   return `Du hilfst mir, einen SO-101-Roboterarm (Follower + Leader) für den Physical AI Harness by RoboForge einzurichten.
 
 WICHTIG: Du brauchst Zugriff auf diesen Ordner. Dort liegt die Software als Quellcode:
@@ -329,7 +355,7 @@ function zeichneTrainings() {
   }).join("")}</table>` : `<p class="leise" style="padding:10px;margin:0">Noch kein Training.</p>`;
 }
 async function trAktion(name, was) {
-  if (was === "abbrechen" && !confirm(`Training ${name} wirklich abbrechen?`)) return;
+  if (was === "abbrechen" && !confirm(t(`Training ${name} wirklich abbrechen?`))) return;
   await tu(() => api("/api/training/aktion", { name, was }), "OK");
 }
 
@@ -354,7 +380,7 @@ async function ladeOrch() {
 }
 async function oeffne(pfad) {
   const ta = $("#datei-inhalt");
-  if (offeneDatei && ta.dataset.geaendert === "1" && !confirm("Ungespeicherte Änderungen verwerfen?")) return;
+  if (offeneDatei && ta.dataset.geaendert === "1" && !confirm(t("Ungespeicherte Änderungen verwerfen?"))) return;
   const d = await tu(() => api("/api/datei?pfad=" + encodeURIComponent(pfad)));
   if (!d) return;
   offeneDatei = pfad; ta.value = d.inhalt; ta.dataset.geaendert = "0";
@@ -372,7 +398,7 @@ async function speichern() {
   if (ok) { $("#datei-inhalt").dataset.geaendert = "0"; $("#datei-name").textContent = offeneDatei; }
 }
 async function neueDatei() {
-  const p = prompt("Neue Datei im Team-Ordner, z. B. skills/fach_pruefen.py");
+  const p = prompt(t("Neue Datei im Team-Ordner, z. B. skills/fach_pruefen.py"));
   if (!p) return;
   if (await tu(() => api("/api/datei", { pfad: p, inhalt: "" }))) { await ladeOrch(); oeffne(p); }
 }

@@ -1,13 +1,13 @@
-"""Beispiel fuer einen Code-Skill: mittlere Helligkeit eines Kamerabilds (Grundlage fuer "Fach leer/belegt?").
+"""Example code skill: mean brightness of a camera image (basis for "is the slot empty/occupied?").
 
-Ein Code-Skill ist eine normale Python-Funktion, die Harness-Skills aufruft und ein klares Ergebnis liefert.
-Im Orchestrator: from skills.beispiel_skill import helligkeit
+A code skill is a plain Python function that calls harness skills and returns a clear result.
+In the orchestrator: from skills.beispiel_skill import helligkeit
 """
 import base64
 
 
 def helligkeit(ros, arm="follower", kamera="arm"):
-    """Mittlere Helligkeit 0..255 des aktuellen Kamerabilds."""
+    """Mean brightness 0..255 of the current camera image (helligkeit = brightness)."""
     import cv2
     import numpy as np
     jpg = base64.b64decode(ros.call("kamera.bild", arm=arm, kamera=kamera)["jpeg_base64"])

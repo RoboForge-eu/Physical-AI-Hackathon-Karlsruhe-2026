@@ -1,3 +1,3 @@
-# Hinweise fuer KI-Assistenten
+# Notes for AI assistants
 
-Bitte zuerst [AGENTS.md](AGENTS.md) lesen. Dort stehen Aufgabe, Schnittstelle und die verbindlichen Sicherheitsregeln.
+Read [AGENTS.md](AGENTS.md) first. It describes the task, the interface and the binding safety rules.

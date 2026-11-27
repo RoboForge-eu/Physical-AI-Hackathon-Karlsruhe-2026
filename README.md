@@ -1,49 +1,51 @@
-# Physical AI Hackathon Karlsruhe · 28.11.2026
+# Physical AI Hackathon Karlsruhe · 28 Nov 2026
 
-Software: **Physical AI Harness by RoboForge**. Eine Oberflaeche im Browser fuehrt durch den ganzen Tag:
-Roboter einrichten → Daten aufnehmen → VLA trainieren → Orchestrator & Skills → eigenes Interface → Teilen → Vorstellen.
+Software: **Physical AI Harness by RoboForge**. One app guides you through the whole day:
+set up the robot → record data → train a VLA → orchestrator & skills → your own interface → share → present.
+The app is in English (switch to German in the profile menu, top right).
 
-## Die Aufgabe
+## The task
 
-Ein SO-101-Roboterarm legt drei Bauteile in die richtigen Faecher und prueft das Ergebnis per Kamera. Liegt die
-Montageplatte schraeg oder ist ein Fach belegt, soll der Ablauf den Fehler erkennen, wenn moeglich korrigieren oder
-begruendet stoppen.
+An SO-101 robot arm places three parts into the right slots and checks the result with a camera. If the mounting
+plate is tilted or a slot is occupied, the flow should detect the error, fix it if possible, or stop with a reason.
 
 ## Installation
 
-Voraussetzung: **Python 3.12** von python.org (macOS: der "universal2 installer", danach einmal
-"Install Certificates.command" im Python-Ordner doppelklicken).
+Requirement: **Python 3.12** from python.org (macOS: the "universal2 installer", then double-click
+"Install Certificates.command" in the Python folder once).
 
-| System | Starten (erster Start richtet alles ein, 10-20 min) |
+| System | Start (the first start sets everything up, 10-20 min) |
 |---|---|
-| Windows | `Start Windows.cmd` doppelklicken |
-| macOS | `Start macOS.command` doppelklicken (beim ersten Mal: Rechtsklick → Oeffnen) |
+| Windows | double-click `Start Windows.cmd` |
+| macOS | double-click `Start macOS.command` (first time: right-click → Open) |
 
-Die Oberflaeche oeffnet sich im Browser unter http://127.0.0.1:8780. Mit dem **Team-Code** von eurem Zettel anmelden.
+The app opens in its own window (http://127.0.0.1:8780). Sign in with the **team code** from your note.
+Windows: `icons/plattform_verknuepfung.ps1` creates a desktop/taskbar shortcut.
 
-### Welcher Rechner trainiert was?
+### Which computer trains what?
 
-| Rechner | ACT | SmolVLA |
+| Computer | ACT | SmolVLA |
 |---|---|---|
-| Windows/Linux mit NVIDIA-Grafikkarte | gut | gut |
-| MacBook mit Apple-Chip (M1-M4) | gut (1-3 h) | sehr langsam |
-| ohne passende Grafikkarte | langsam | nicht sinnvoll |
+| Windows/Linux with NVIDIA graphics card | good | good |
+| MacBook with Apple chip (M1-M4) | good (1-3 h) | very slow |
+| without a suitable graphics card | slow | not useful |
 
-Die Software erkennt das selbst und schlaegt die passende Methode vor.
+The software detects this itself and suggests the right method.
 
-## Euer Team-Ordner
+## Your team folder
 
-Alles, was ihr baut, liegt in `teams/<euer-team>/` (Vorlage: `teams/_vorlage/`). **Lest `AGENTS.md`** dort,
-oder lasst es euren Coding-Agent lesen. Nur dieser Ordner wird geteilt.
+Everything you build lives in `teams/<your-team>/` (template: `teams/_vorlage/`). **Read `AGENTS.md`** there,
+or let your coding agent read it. Only this folder is shared. The software is plain source code: you and your
+coding agent can read everything, but please only change your team folder.
 
-## Teilen
+## Sharing
 
-- **Code:** Knopf *Team-Ordner hochladen*. Er landet im Zweig `team/<euer-team>`. Ein Waechter uebernimmt
-  automatisch nur euren Ordner nach `main` (alle 5 Minuten).
-- **Modelle und Datensaetze:** Knopf *Modell veroeffentlichen*. Sie landen auf Hugging Face bei
-  [RoboForge](https://huggingface.co/RoboForge), mit Teamname und Beschreibung.
+- **Code:** button *Upload team folder*. It goes to the branch `team/<your-team>`. A guard workflow automatically
+  copies only your folder to `main` (every 5 minutes).
+- **Models and datasets:** button *Publish model*. They go to Hugging Face under
+  [RoboForge](https://huggingface.co/RoboForge), with team name and description.
 
-## Sicherheit
+## Safety
 
-Keine Armbewegung ohne Mensch vor Ort und Zustimmung (jede Bewegung wird im Harness-Fenster bestaetigt).
-Nie 12 V an die Arme. Im Zweifel: **STOP** oben rechts.
+No arm movement without a person on site and their consent (every movement is approved in the app).
+Never connect 12 V to the arms. When in doubt: **STOP** at the top right, or F12.

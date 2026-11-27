@@ -22,6 +22,7 @@ DATEI_NICHT = {"config.json", "livekit.json", "agent.json", "fernzugriff.json", 
 PLAENE = ["elektrodose.json"]
 
 CONFIG_BEISPIEL = {
+    "sprache": "en",
     "follower": {"usb_serial": "", "port": None, "label": "Setup 1", "cameras": [1, 2]},
     "leader": {"usb_serial": "", "port": None},
     "baud": 1000000,
@@ -57,7 +58,7 @@ dist/
 *.npz
 """
 
-REQ_PLATTFORM = """# Physical AI Harness: Oberflaeche + Harness (Arm, Kameras). Python 3.12.
+REQ_PLATTFORM = """# Physical AI Harness: app + harness (arm, cameras). Python 3.12.
 pyserial>=3.5
 websockets>=13
 opencv-python>=4.9
@@ -68,45 +69,45 @@ scipy>=1.11
 """
 
 START_WIN = r"""@echo off
-rem Physical AI Harness by RoboForge - Windows. Beim ersten Start wird alles eingerichtet (10-20 min, Internet noetig).
+rem Physical AI Harness by RoboForge - Windows. The first start sets everything up (10-20 min, internet needed).
 cd /d "%~dp0"
 set PY=py -3.12
 %PY% --version >nul 2>nul || set PY=python
-%PY% --version >nul 2>nul || (echo Python 3.12 fehlt. Bitte installieren: https://www.python.org/downloads/ & pause & exit /b 1)
+%PY% --version >nul 2>nul || (echo Python 3.12 is missing. Please install it: https://www.python.org/downloads/ & pause & exit /b 1)
 if not exist .venv\Scripts\python.exe (
-  echo [1/2] Richte die Oberflaeche ein ...
+  echo [1/2] Setting up the app ...
   %PY% -m venv .venv || (pause & exit /b 1)
   .venv\Scripts\python -m pip install --upgrade pip
-  .venv\Scripts\python -m pip install -r requirements-plattform.txt || (echo Installation fehlgeschlagen & pause & exit /b 1)
-  .venv\Scripts\python -m pip install depthai || echo OAK-D-Lite-Unterstuetzung nicht installiert ^(optional^)
+  .venv\Scripts\python -m pip install -r requirements-plattform.txt || (echo Installation failed & pause & exit /b 1)
+  .venv\Scripts\python -m pip install depthai || echo OAK-D Lite support not installed ^(optional^)
 )
 if not exist ki-env\Scripts\python.exe (
-  echo [2/2] Richte die KI-Umgebung ein ^(LeRobot, PyTorch - gross, bitte warten^) ...
+  echo [2/2] Setting up the AI environment ^(LeRobot, PyTorch - large, please wait^) ...
   %PY% -m venv ki-env || (pause & exit /b 1)
   ki-env\Scripts\python -m pip install --upgrade pip
   nvidia-smi >nul 2>nul && ki-env\Scripts\python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
-  ki-env\Scripts\python -m pip install "lerobot[smolvla]==0.7.0" || (echo KI-Installation fehlgeschlagen & pause & exit /b 1)
+  ki-env\Scripts\python -m pip install "lerobot[smolvla]==0.7.0" || (echo AI installation failed & pause & exit /b 1)
 )
 start "" .venv\Scripts\pythonw.exe physical_ai_harness.py --harness
 """
 
 START_MAC = """#!/bin/bash
-# Physical AI Harness by RoboForge - macOS. Beim ersten Start wird alles eingerichtet (10-20 min, Internet noetig).
+# Physical AI Harness by RoboForge - macOS. The first start sets everything up (10-20 min, internet needed).
 cd "$(dirname "$0")"
 PY=$(command -v python3.12 || command -v python3)
-if [ -z "$PY" ]; then echo "Python 3.12 fehlt: https://www.python.org/downloads/macos/"; read -n 1; exit 1; fi
+if [ -z "$PY" ]; then echo "Python 3.12 is missing: https://www.python.org/downloads/macos/"; read -n 1; exit 1; fi
 if [ ! -x .venv/bin/python ]; then
-  echo "[1/2] Richte die Oberflaeche ein ..."
+  echo "[1/2] Setting up the app ..."
   "$PY" -m venv .venv || { read -n 1; exit 1; }
   .venv/bin/python -m pip install --upgrade pip
-  .venv/bin/python -m pip install -r requirements-plattform.txt || { echo "Installation fehlgeschlagen"; read -n 1; exit 1; }
-  .venv/bin/python -m pip install depthai || echo "OAK-D-Lite-Unterstuetzung nicht installiert (optional)"
+  .venv/bin/python -m pip install -r requirements-plattform.txt || { echo "Installation failed"; read -n 1; exit 1; }
+  .venv/bin/python -m pip install depthai || echo "OAK-D Lite support not installed (optional)"
 fi
 if [ ! -x ki-env/bin/python ]; then
-  echo "[2/2] Richte die KI-Umgebung ein (LeRobot, PyTorch - gross, bitte warten) ..."
+  echo "[2/2] Setting up the AI environment (LeRobot, PyTorch - large, please wait) ..."
   "$PY" -m venv ki-env || { read -n 1; exit 1; }
   ki-env/bin/python -m pip install --upgrade pip
-  ki-env/bin/python -m pip install "lerobot[smolvla]==0.7.0" || { echo "KI-Installation fehlgeschlagen"; read -n 1; exit 1; }
+  ki-env/bin/python -m pip install "lerobot[smolvla]==0.7.0" || { echo "AI installation failed"; read -n 1; exit 1; }
 fi
 .venv/bin/python physical_ai_harness.py --harness
 """
@@ -198,55 +199,57 @@ if __name__ == "__main__":
     main()
 '''
 
-README = """# Physical AI Hackathon Karlsruhe · 28.11.2026
+README = """# Physical AI Hackathon Karlsruhe · 28 Nov 2026
 
-Software: **Physical AI Harness by RoboForge**. Eine Oberflaeche im Browser fuehrt durch den ganzen Tag:
-Roboter einrichten → Daten aufnehmen → VLA trainieren → Orchestrator & Skills → eigenes Interface → Teilen → Vorstellen.
+Software: **Physical AI Harness by RoboForge**. One app guides you through the whole day:
+set up the robot → record data → train a VLA → orchestrator & skills → your own interface → share → present.
+The app is in English (switch to German in the profile menu, top right).
 
-## Die Aufgabe
+## The task
 
-Ein SO-101-Roboterarm legt drei Bauteile in die richtigen Faecher und prueft das Ergebnis per Kamera. Liegt die
-Montageplatte schraeg oder ist ein Fach belegt, soll der Ablauf den Fehler erkennen, wenn moeglich korrigieren oder
-begruendet stoppen.
+An SO-101 robot arm places three parts into the right slots and checks the result with a camera. If the mounting
+plate is tilted or a slot is occupied, the flow should detect the error, fix it if possible, or stop with a reason.
 
 ## Installation
 
-Voraussetzung: **Python 3.12** von python.org (macOS: der "universal2 installer", danach einmal
-"Install Certificates.command" im Python-Ordner doppelklicken).
+Requirement: **Python 3.12** from python.org (macOS: the "universal2 installer", then double-click
+"Install Certificates.command" in the Python folder once).
 
-| System | Starten (erster Start richtet alles ein, 10-20 min) |
+| System | Start (the first start sets everything up, 10-20 min) |
 |---|---|
-| Windows | `Start Windows.cmd` doppelklicken |
-| macOS | `Start macOS.command` doppelklicken (beim ersten Mal: Rechtsklick → Oeffnen) |
+| Windows | double-click `Start Windows.cmd` |
+| macOS | double-click `Start macOS.command` (first time: right-click → Open) |
 
-Die Oberflaeche oeffnet sich im Browser unter http://127.0.0.1:8780. Mit dem **Team-Code** von eurem Zettel anmelden.
+The app opens in its own window (http://127.0.0.1:8780). Sign in with the **team code** from your note.
+Windows: `icons/plattform_verknuepfung.ps1` creates a desktop/taskbar shortcut.
 
-### Welcher Rechner trainiert was?
+### Which computer trains what?
 
-| Rechner | ACT | SmolVLA |
+| Computer | ACT | SmolVLA |
 |---|---|---|
-| Windows/Linux mit NVIDIA-Grafikkarte | gut | gut |
-| MacBook mit Apple-Chip (M1-M4) | gut (1-3 h) | sehr langsam |
-| ohne passende Grafikkarte | langsam | nicht sinnvoll |
+| Windows/Linux with NVIDIA graphics card | good | good |
+| MacBook with Apple chip (M1-M4) | good (1-3 h) | very slow |
+| without a suitable graphics card | slow | not useful |
 
-Die Software erkennt das selbst und schlaegt die passende Methode vor.
+The software detects this itself and suggests the right method.
 
-## Euer Team-Ordner
+## Your team folder
 
-Alles, was ihr baut, liegt in `teams/<euer-team>/` (Vorlage: `teams/_vorlage/`). **Lest `AGENTS.md`** dort,
-oder lasst es euren Coding-Agent lesen. Nur dieser Ordner wird geteilt.
+Everything you build lives in `teams/<your-team>/` (template: `teams/_vorlage/`). **Read `AGENTS.md`** there,
+or let your coding agent read it. Only this folder is shared. The software is plain source code: you and your
+coding agent can read everything, but please only change your team folder.
 
-## Teilen
+## Sharing
 
-- **Code:** Knopf *Team-Ordner hochladen*. Er landet im Zweig `team/<euer-team>`. Ein Waechter uebernimmt
-  automatisch nur euren Ordner nach `main` (alle 5 Minuten).
-- **Modelle und Datensaetze:** Knopf *Modell veroeffentlichen*. Sie landen auf Hugging Face bei
-  [RoboForge](https://huggingface.co/RoboForge), mit Teamname und Beschreibung.
+- **Code:** button *Upload team folder*. It goes to the branch `team/<your-team>`. A guard workflow automatically
+  copies only your folder to `main` (every 5 minutes).
+- **Models and datasets:** button *Publish model*. They go to Hugging Face under
+  [RoboForge](https://huggingface.co/RoboForge), with team name and description.
 
-## Sicherheit
+## Safety
 
-Keine Armbewegung ohne Mensch vor Ort und Zustimmung (jede Bewegung wird im Harness-Fenster bestaetigt).
-Nie 12 V an die Arme. Im Zweifel: **STOP** oben rechts.
+No arm movement without a person on site and their consent (every movement is approved in the app).
+Never connect 12 V to the arms. When in doubt: **STOP** at the top right, or F12.
 """
 
 ADMIN = """# Fuer Veranstalter: Einrichtung des Repos (einmalig)

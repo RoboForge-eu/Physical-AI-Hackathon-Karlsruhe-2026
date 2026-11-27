@@ -17,7 +17,7 @@ Sicherheit: Alle Befehle hier sind nur lokal erlaubt (nicht ueber das Internet, 
 starten nur nach Zustimmung des Menschen vor Ort (Dialog in der Webseite, die nur auf diesem Rechner laeuft).
 Wird die Webseite geschlossen, holt der Harness versteckte Fenster nach 60 s wieder nach vorne.
 """
-import base64, collections, itertools, queue, threading, time, types
+import base64, collections, itertools, queue, sys, threading, time, types
 import tkinter as tk
 from tkinter import messagebox
 
@@ -30,6 +30,9 @@ _IDS = itertools.count(1)
 _ORIG = {}
 LETZTER_BESUCH = [0.0]          # wann die Webseite zuletzt nachgefragt hat (monotonic)
 WEB_TIMEOUT_S = 60
+# Von der Weboberflaeche gestartet (Harness-Fenster minimiert): ALLE Rueckfragen des Harness (z. B. Freigabe einer
+# Arbeitssitzung fuer den Orchestrator) erscheinen in der Webseite, solange sie offen ist.
+WEB_ALLE = "--im-hintergrund" in sys.argv
 FRAGE_TIMEOUT_S = 180
 
 
@@ -114,8 +117,11 @@ def gespiegelt(widget):
 def _dialog(name, orig):
     def f(title=None, message=None, **kw):
         parent = kw.get("parent")
-        if not gespiegelt(parent) or time.monotonic() - LETZTER_BESUCH[0] > WEB_TIMEOUT_S:
+        web = gespiegelt(parent) or WEB_ALLE
+        if not web or time.monotonic() - LETZTER_BESUCH[0] > WEB_TIMEOUT_S:
             return orig(title, message, **kw)
+        if parent is None or not gespiegelt(parent):
+            parent = LAB.root
         if name.startswith("show"):
             MELDUNGEN.append({"titel": title or "", "text": message or "", "zeit": time.time(),
                               "art": {"showerror": "fehler", "showwarning": "warnung"}.get(name, "info")})

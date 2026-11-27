@@ -1,28 +1,30 @@
 <!doctype html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Team-Interface</title>
+<title>Team interface</title>
 <style>
-  body { font: 15px/1.5 system-ui, sans-serif; margin: 0; padding: 20px; background: #fbf9f4; color: #1b2540; }
-  h1 { color: #1f3b73; margin-top: 0; }
-  button { font: inherit; font-weight: 700; padding: 10px 18px; border-radius: 8px; border: 2px solid #1f3b73;
-           background: #1f3b73; color: #fff; cursor: pointer; }
-  pre { background: #0d1630; color: #dfe6f5; padding: 12px; border-radius: 8px; white-space: pre-wrap; }
+  body { font: 14px/1.5 system-ui, sans-serif; margin: 0; padding: 20px; background: #0e0f11; color: #e6e7e9; }
+  h1 { font-size: 18px; margin-top: 0; }
+  code { background: #16181b; border: 1px solid #2a2d32; border-radius: 3px; padding: 0 4px; }
+  button { font: inherit; font-weight: 600; padding: 8px 16px; border-radius: 5px; border: 1px solid #e8b230;
+           background: #e8b230; color: #111; cursor: pointer; margin-right: 6px; }
+  pre { background: #0a0b0d; color: #c9ccd1; border: 1px solid #2a2d32; padding: 12px; border-radius: 5px; white-space: pre-wrap; }
 </style>
 </head>
 <body>
-<h1>Unser Interface</h1>
-<p>Beispiel: Diese Seite liegt in <code>ui/index.html</code> eures Team-Ordners. Baut hier eure eigene Bedienung.</p>
-<button onclick="skill('arme.liste')">Arme anzeigen</button>
-<button onclick="skill('modelle.liste')">Modelle anzeigen</button>
-<pre id="aus">-</pre>
+<h1>Our interface</h1>
+<p>Example: this page is <code>ui/index.html</code> in your team folder. Build your own controls here.</p>
+<button onclick="skill('arme.liste')">Show arms</button>
+<button onclick="skill('modelle.liste')">Show models</button>
+<pre id="out">-</pre>
 <script>
+// Calls a harness skill through the app (POST /api/skill). Movements are always approved by a person on site.
 async function skill(name, args = {}) {
   const r = await fetch("/api/skill", { method: "POST", headers: { "Content-Type": "application/json", "X-RF": "1" },
                                        body: JSON.stringify({ name, args }) });
   const j = await r.json();
-  document.getElementById("aus").textContent = JSON.stringify(j.ergebnis ?? j, null, 2);
+  document.getElementById("out").textContent = JSON.stringify(j.ergebnis ?? j, null, 2);
 }
 </script>
 </body>

@@ -323,6 +323,8 @@ class Lab:
         root.after(300, self.update_buttons)
         root.after(1000, self.update_network)
         root.after(3000, self.check_update)
+        if "--im-hintergrund" in sys.argv:     # von der Weboberflaeche gestartet: Fenster nur in der Taskleiste
+            root.after(1500, root.iconify)
 
     # --- Boards (nur USB-Liste, kein Buszugriff) ---
     def _board_loop(self):
@@ -1364,7 +1366,8 @@ class Lab:
             messagebox.showinfo("Neu starten", "Erst alle Arme ablegen (Stop), dann neu starten.", parent=self.root)
             return
         # Trainings laufen im eigenen Trainings-Dienst weiter (ki/trainer.py) - kein Grund zu warten
-        start_detached(["--after", str(os.getpid())] + (["--sim"] if sim else []))
+        start_detached(["--after", str(os.getpid())] + (["--sim"] if sim else [])
+                       + (["--im-hintergrund"] if "--im-hintergrund" in sys.argv else []))
         self.close()
 
     def sim_umschalten(self):

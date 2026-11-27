@@ -1,12 +1,12 @@
-# Team-Ordner
+# Team folder
 
-Hier liegt alles, was euer Team baut. Nur dieser Ordner wird geteilt (Abschnitt *Teilen* der Plattform).
-Lies zuerst `AGENTS.md`, oder lass es euren Coding-Agent lesen.
+Everything your team builds lives here. Only this folder is shared (section *Share* in the app).
+Read `AGENTS.md` first, or let your coding agent read it.
 
-- `orchestrator.py`: euer Ablauf
-- `skills/`: eure Code-Skills
-- `plaene/`: eure Aufnahmeplaene
-- `ui/index.html`: euer Interface
-- `vorstellung.md`: Text fuer die Abschlusspraesentation
+- `orchestrator.py`: your flow
+- `skills/`: your code skills
+- `plaene/`: your recording plans (training plans for a VLA)
+- `ui/index.html`: your interface
+- `vorstellung.md`: text for the final presentation
 
-Modelle und Datensaetze kommen **nicht** hierher, sondern ueber den Knopf *Modell veroeffentlichen* auf Hugging Face.
+Models and datasets do **not** go here; publish them to Hugging Face with the *Publish model* button.

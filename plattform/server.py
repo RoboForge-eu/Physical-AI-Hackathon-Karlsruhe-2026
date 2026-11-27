@@ -72,7 +72,7 @@ class Harness:
         from ki.geraet import popen_detached_kwargs
         exe = sys.executable
         pyw = os.path.join(os.path.dirname(exe), "pythonw.exe")
-        subprocess.Popen([pyw if os.path.exists(pyw) else exe, os.path.join(KIT, "ros.py")], cwd=KIT,
+        subprocess.Popen([pyw if os.path.exists(pyw) else exe, os.path.join(KIT, "ros.py"), "--im-hintergrund"], cwd=KIT,
                          close_fds=True, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
                          stderr=subprocess.DEVNULL, **popen_detached_kwargs())
         return {"gestartet": True}
@@ -115,7 +115,7 @@ class App:
                 "training": self._safe(lambda: self.queue().snapshot(), []),
                 "aufgaben": self.aufgaben.status(), "orchestrator": {"laeuft": self.orch.laeuft()},
                 "pakete": len(self.teams.pakete_liste()), "system": sys.platform,
-                "kit": KIT, "team_pfad": self.team_ordner(), "links": self.links()}
+                "kit": KIT, "team_pfad": self.team_ordner(), "links": self.links(), "sprache": sprache()}
 
     def links(self):
         """GitHub (Team-Ordner, sonst das Repo) und Hugging Face (RoboForge) fuer die Kopfzeile."""
@@ -245,6 +245,34 @@ class App:
 
 
 APP = None
+
+
+def sprache():
+    """Sprache der Oberflaeche: Einstellung im Profil (plattform_daten), sonst config.json "sprache", sonst Deutsch."""
+    for pfad in (os.path.join(DATEN, "einstellungen.json"), os.path.join(KIT, "config.json")):
+        try:
+            with open(pfad, encoding="utf-8") as f:
+                s = json.load(f).get("sprache")
+            if s in ("de", "en"):
+                return s
+        except (OSError, ValueError, AttributeError):
+            pass
+    return "de"
+
+
+def sprache_setzen(s):
+    if s not in ("de", "en"):
+        raise ValueError("Sprache: de oder en")
+    pfad = os.path.join(DATEN, "einstellungen.json")
+    os.makedirs(DATEN, exist_ok=True)
+    try:
+        with open(pfad, encoding="utf-8") as f:
+            d = json.load(f)
+    except (OSError, ValueError):
+        d = {}
+    d["sprache"] = s
+    with open(pfad, "w", encoding="utf-8") as f:
+        json.dump(d, f, ensure_ascii=False, indent=1)
 ARBEIT_SKILLS = {"station.oeffnen", "station.uebernehmen", "station.assistent", "station.quelle", "station.neustart",
                  "station.video", "steuer.aufnahme", "steuer.plan", "steuer.startpose", "ki.modell_waehlen"}
 
@@ -289,7 +317,10 @@ class Handler(BaseHTTPRequestHandler):
         if ctype.startswith("text/") or ctype in ("application/javascript", "application/json"):
             ctype += "; charset=utf-8"
         with open(path, "rb") as f:
-            self._send(200, f.read(), ctype)
+            inhalt = f.read()
+        if path.endswith(".html") and os.path.dirname(os.path.abspath(path)) == os.path.abspath(STATIC):
+            inhalt = inhalt.replace(b"__SPRACHE__", sprache().encode())
+        self._send(200, inhalt, ctype)
 
     # --- GET ---
     def do_GET(self):
@@ -377,6 +408,9 @@ class Handler(BaseHTTPRequestHandler):
             if p == "/api/logout":
                 APP.teams.logout()
                 return self._send(200, {"ok": True})
+            if p == "/api/sprache":
+                sprache_setzen(b.get("sprache"))
+                return self._send(200, {"sprache": sprache()})
             if p == "/api/ordner":                    # Software- oder Team-Ordner im Explorer/Finder oeffnen
                 ziel = APP.team_ordner() if b.get("was") == "team" else KIT
                 if not ziel or not os.path.isdir(ziel):

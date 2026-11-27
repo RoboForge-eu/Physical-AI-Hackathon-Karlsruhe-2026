@@ -360,3 +360,7 @@ button.sp-wahl.an { background: var(--gelb-bg); border-color: var(--gelb); color
 .sp-bild img { width: 100%; display: block; }
 .sp-bild.klickbar img { cursor: crosshair; }
 .sp-bild .leer { position: absolute; inset: 0; display: grid; place-items: center; color: var(--text-3); }
+
+/* --- Sprache: zweisprachige Bloecke --- */
+html:not([data-sprache="en"]) .en, html[data-sprache="en"] .de { display: none; }
+.sprache-wahl button.an { background: var(--gelb-bg); border-color: var(--gelb); color: var(--gelb); }
