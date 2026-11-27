@@ -323,8 +323,8 @@ class Lab:
         root.after(300, self.update_buttons)
         root.after(1000, self.update_network)
         root.after(3000, self.check_update)
-        if "--im-hintergrund" in sys.argv:     # von der Weboberflaeche gestartet: Fenster nur in der Taskleiste
-            root.after(1500, root.iconify)
+        if "--im-hintergrund" in sys.argv:     # von der Weboberflaeche gestartet: kein eigenes Fenster, alles in der App
+            root.withdraw()
 
     # --- Boards (nur USB-Liste, kein Buszugriff) ---
     def _board_loop(self):

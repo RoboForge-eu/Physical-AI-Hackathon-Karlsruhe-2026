@@ -66,6 +66,11 @@ function zeichneKopf() {
     <dt>Angemeldet</dt><dd>${esc(t.angemeldet || "")}</dd></dl>
     <div class="zeile" style="margin-top:10px"><button onclick="abmelden()">Abmelden</button></div>`
     : `<h3>Nicht angemeldet</h3><p>Mit dem Team-Code anmelden (Abschnitt 0 · Start).</p><button class="haupt" onclick="geheZu('start')">Zum Anmelden</button>`;
+  teamFarbe(t?.farbe);
+  const wahl = Z.teams_wahl || [];
+  if (wahl.length) $("#profil-inhalt").insertAdjacentHTML("afterbegin", `<div class="team-wahl"><span class="leise klein">Team wählen</span>
+    <div class="team-knoepfe">${wahl.map((w) => `<button class="${t && t.code === w.code ? "an" : ""}" style="--tf:${esc(w.farbe || "#888")}"
+      onclick="teamWaehlen('${esc(w.code)}')"><i></i>${esc(w.code)}</button>`).join("")}</div></div>`);
   $("#profil-inhalt").insertAdjacentHTML("beforeend", `<div class="zeile sprache-wahl" style="margin-top:14px;padding-top:10px;border-top:1px solid var(--linie)">
     <span class="leise klein">Sprache</span><button class="${SPRACHE === "de" ? "an" : ""}" onclick="spracheSetzen('de')">Deutsch</button>
     <button class="${SPRACHE === "en" ? "an" : ""}" onclick="spracheSetzen('en')">English</button></div>`);
@@ -73,6 +78,20 @@ function zeichneKopf() {
 async function spracheSetzen(s) {
   if (s === SPRACHE) return;
   if (await tu(() => api("/api/sprache", { sprache: s }))) location.reload();
+}
+// Teamfarbe = Akzentfarbe der ganzen App (ohne Team: Gold)
+function teamFarbe(hex) {
+  const s = document.documentElement.style;
+  if (!hex || !/^#[0-9a-f]{6}$/i.test(hex)) { for (const k of ["--gelb", "--gelb-dunkel", "--gelb-bg"]) s.removeProperty(k); return; }
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  s.setProperty("--gelb", hex);
+  s.setProperty("--gelb-dunkel", `rgb(${r * .78 | 0},${g * .78 | 0},${b * .78 | 0})`);
+  s.setProperty("--gelb-bg", `rgba(${r},${g},${b},.12)`);
+}
+async function teamWaehlen(code) {
+  if (Z.team && Z.team.code === code) return;
+  const r = await tu(() => api("/api/login", { code }));
+  if (r) { toast(`Willkommen, ${r.team.team}!`); for (const h of r.hinweise || []) toast(h); laden(); }
 }
 async function abmelden() { await tu(() => api("/api/logout", {}), "Abgemeldet."); laden(); }
 
@@ -126,7 +145,7 @@ function zeichneStart() {
     lb.dataset.zustand = "aus";
     lb.innerHTML = `<p class="klein">Team-Code vom Zettel an eurer Station eingeben. Damit kommen eure Kalibrierung,
       der Team-Ordner und die Zugänge zum Teilen automatisch.</p>
-      <div class="zeile"><input id="code" placeholder="z. B. BLAU-4821" style="flex:1;text-transform:uppercase">
+      <div class="zeile"><input id="code" placeholder="z. B. BLUE-1" style="flex:1;text-transform:uppercase">
       <button class="gelb" id="login-knopf">Anmelden</button></div>
       <p class="klein leise" style="margin-top:8px">${Z.pakete ? Z.pakete + " Team-Paket(e) auf diesem Rechner." : "Noch kein Team-Paket auf diesem Rechner (Ordner stationspakete)."}</p>`;
     const go = async () => {

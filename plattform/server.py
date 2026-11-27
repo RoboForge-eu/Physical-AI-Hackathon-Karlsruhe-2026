@@ -114,7 +114,7 @@ class App:
                 "hackathon": self.hackathon.jetzt(), "geraet": self._geraet,
                 "training": self._safe(lambda: self.queue().snapshot(), []),
                 "aufgaben": self.aufgaben.status(), "orchestrator": {"laeuft": self.orch.laeuft()},
-                "pakete": len(self.teams.pakete_liste()), "system": sys.platform,
+                "pakete": len(self.teams.pakete_liste()), "teams_wahl": self.teams.auswahl(), "system": sys.platform,
                 "kit": KIT, "team_pfad": self.team_ordner(), "links": self.links(), "sprache": sprache()}
 
     def links(self):

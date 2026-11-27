@@ -86,6 +86,18 @@ def slug(text):
     return s or "team"
 
 
+# Die sechs Hackathon-Teams. Code = Anmeldung, Farbe = Akzentfarbe der App. Ein Paket mit gleichem Code
+# (stationspakete/*.json) ergaenzt Zugaenge und Station.
+STANDARD_TEAMS = [
+    {"code": "BLUE-1", "team": "Team Blue", "farbe": "#3d8bfd"},
+    {"code": "RED-2", "team": "Team Red", "farbe": "#e5484d"},
+    {"code": "GREEN-3", "team": "Team Green", "farbe": "#3fb950"},
+    {"code": "YELLOW-4", "team": "Team Yellow", "farbe": "#e8b230"},
+    {"code": "ORANGE-5", "team": "Team Orange", "farbe": "#f0883e"},
+    {"code": "PURPLE-6", "team": "Team Purple", "farbe": "#a371f7"},
+]
+
+
 class Teams:
     """Anmeldung mit Team-Code. Ein Paket (stationspakete/*.json) bringt mit:
     Teamname, Ordner, Hugging-Face- und GitHub-Daten, optional die Kalibrierung der Station."""
@@ -105,7 +117,18 @@ class Teams:
                     p = _read(os.path.join(self.pakete, f))
                     if isinstance(p, dict) and p.get("code"):
                         out.append(p)
+        codes = {str(p["code"]).strip().upper(): p for p in out}
+        for s in STANDARD_TEAMS:
+            if s["code"] in codes:
+                codes[s["code"]].setdefault("farbe", s["farbe"])
+            else:
+                out.append(dict(s))
         return out
+
+    def auswahl(self):
+        """Teams fuer die Auswahl oben rechts (ohne Zugangsdaten)."""
+        return [{"code": p["code"], "team": p.get("team", p["code"]), "farbe": p.get("farbe")}
+                for p in self.pakete_liste()]
 
     def login(self, code):
         code = str(code or "").strip().upper()

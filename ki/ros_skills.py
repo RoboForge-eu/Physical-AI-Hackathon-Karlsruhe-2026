@@ -6,7 +6,7 @@ Regeln:
     Agenten ist das vorerst gesperrt; 'arm.ablegen' (Stop) ist immer erlaubt, weil es sicherer macht.
   - Befehle, die die Oberflaeche aendern, laufen ueber lab.on_ui() im Fenster-Thread.
 """
-import base64, os
+import base64, os, sys
 from . import MODELS, episodes, jobs, methods
 from .skills import Registry
 
@@ -684,6 +684,8 @@ def build(lab):
 
         def run():
             try:
+                if "--im-hintergrund" in sys.argv:    # Harness ohne Fenster: nichts hervorholen
+                    raise RuntimeError
                 lab.root.deiconify()
                 lab.root.lift()
                 lab.root.focus_force()
