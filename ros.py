@@ -310,6 +310,11 @@ class Lab:
         self.relayout(sw)
         self.cams.start()
         self.start_kern_api()
+        try:                                   # Weboberflaeche (Physical AI Harness): Fenster-Spiegel, Rueckfragen
+            import webstation
+            webstation.installieren(self)
+        except Exception as exc:
+            print("Web-Station nicht verfuegbar:", exc)
         root.protocol("WM_DELETE_WINDOW", self.close)
         root.bind_all("<F12>", lambda e: self.emergency_all())     # Not-Ablage, in jedem Harness-Fenster
         root.bind("<Destroy>", lambda e: self._shutdown() if e.widget is root else None)
@@ -765,7 +770,19 @@ class Lab:
         self._start(key, "remote")
         self.update_buttons()
 
-    def take_leader(self, key):
+    def leader_text(self, key):
+        """Text der Freigabe-Frage fuer 'Leader uebernehmen' (Fenster und Weboberflaeche)."""
+        panel = self.panels[key]
+        others = [k for k in self.running() if k != key and self.panels[k].mode == "lokal"]
+        names = ", ".join(self.panels[k].label for k in others)
+        if others:
+            return others, (f"Leader von {names} zu {panel.label} wechseln?\n\n"
+                    f"{names} legt sich kontrolliert ab, GLEICHZEITIG faehrt {panel.label} hoch und folgt dem Leader.\n\n"
+                    f"Bist du vor Ort und stimmst der Bewegung beider Arme zu?\n\n{SAFETY_TEXT}")
+        return others, f"{panel.label}: Bist du vor Ort und stimmst der schnellen Bewegung zu?\n\n{SAFETY_TEXT}\n\nJetzt Bewegung starten?"
+
+    def take_leader(self, key, bestaetigt=False):
+        """bestaetigt=True: der Mensch vor Ort hat in der Weboberflaeche (127.0.0.1) schon zugestimmt."""
         panel = self.panels[key]
         if panel.running:
             return
@@ -773,17 +790,10 @@ class Lab:
             self.take_remote(key)
             return
         if panel.source.get() == "ki":
-            self.take_ki(key)
+            self.take_ki(key, bestaetigt)
             return
-        others = [k for k in self.running() if k != key and self.panels[k].mode == "lokal"]
-        names = ", ".join(self.panels[k].label for k in others)
-        if others:
-            text = (f"Leader von {names} zu {panel.label} wechseln?\n\n"
-                    f"{names} legt sich kontrolliert ab, GLEICHZEITIG faehrt {panel.label} hoch und folgt dem Leader.\n\n"
-                    f"Bist du vor Ort und stimmst der Bewegung beider Arme zu?\n\n{SAFETY_TEXT}")
-        else:
-            text = f"{panel.label}: Bist du vor Ort und stimmst der schnellen Bewegung zu?\n\n{SAFETY_TEXT}\n\nJetzt Bewegung starten?"
-        if not messagebox.askokcancel("Bewegung freigeben", text, parent=self.dialog_parent(key)):
+        others, text = self.leader_text(key)
+        if not bestaetigt and not messagebox.askokcancel("Bewegung freigeben", text, parent=self.dialog_parent(key)):
             return
         for k in others:
             self.stop(k)
@@ -942,29 +952,42 @@ class Lab:
             out[self.cam_key(slot)] = img if img is not None and t is not None and now - t < 0.25 else None
         return out
 
-    def take_ki(self, key):
-        from ki.client import DriverClient, SLOW_DEG_S
+    def ki_text(self, key):
+        """(Fehler, Freigabe-Text) fuer 'KI uebernehmen' (Fenster und Weboberflaeche)."""
+        from ki.client import SLOW_DEG_S
         from ki.episodes import load_json
         p = self.panels[key]
         if not p.ki_model:
-            return
+            return "Kein Modell gewaehlt.", None, {}
         meta = load_json(os.path.join(p.ki_model, "modell.json")) or {}
         mine = [self.cam_key(s) for s in p.slots]
         missing = [c for c in meta.get("cameras") or [] if c not in mine]
         if missing:   # Modell darf weniger Kameras nutzen als der Arm hat, aber keine fehlende
-            messagebox.showerror("KI", f"Das Modell braucht die Kameras {meta['cameras']}, {p.label} hat {mine} "
-                                       f"(fehlt: {', '.join(missing)}).",
-                                 parent=self.root)
-            return
+            return (f"Das Modell braucht die Kameras {meta['cameras']}, {p.label} hat {mine} "
+                    f"(fehlt: {', '.join(missing)})."), None, meta
         warn = ""
         if meta.get("arm") and meta["arm"] != key:
             warn = f"\n\nACHTUNG: Das Modell wurde an {meta['arm']} aufgenommen, nicht an {p.label}."
-        if not messagebox.askokcancel("KI-Steuerung freigeben",
-                f"{p.label} wird vom KI-Modell {os.path.basename(p.ki_model)} ({meta.get('method', '?')}) bewegt, "
+        return None, (f"{p.label} wird vom KI-Modell {os.path.basename(p.ki_model)} ({meta.get('method', '?')}) bewegt, "
                 f"hoechstens {SLOW_DEG_S:.0f} Grad/s je Gelenk. Haelt das Modell nach der Aufgabe still oder ist eine Minute um, legt sich der Arm ab.\n\nAufgabe: {p.ki_task or meta.get('task') or '-'}"
                 f"\n\nDer Arm faehrt zuerst einzeln hoch und haelt dann seine Stellung, bis das Modell Ziele liefert. "
                 f"Kommen 1 s keine Ziele, legt er sich ab. Ein KI-Modell kann sich unerwartet bewegen.{warn}\n\n"
-                f"Bist du vor Ort, hast den Arbeitsbereich im Blick und stimmst zu?\n\n{SAFETY_TEXT}", parent=self.dialog_parent(key)):
+                f"Bist du vor Ort, hast den Arbeitsbereich im Blick und stimmst zu?\n\n{SAFETY_TEXT}"), meta
+
+    def take_ki(self, key, bestaetigt=False):
+        """bestaetigt=True: der Mensch vor Ort hat in der Weboberflaeche (127.0.0.1) schon zugestimmt."""
+        from ki.client import DriverClient
+        p = self.panels[key]
+        if not p.ki_model:
+            return
+        fehler, text, meta = self.ki_text(key)
+        if fehler:
+            if bestaetigt:
+                p.append(f"KI: {fehler}\n")
+            else:
+                messagebox.showerror("KI", fehler, parent=self.root)
+            return
+        if not bestaetigt and not messagebox.askokcancel("KI-Steuerung freigeben", text, parent=self.dialog_parent(key)):
             return
         def state():
             v = self.ki_state.get(key)

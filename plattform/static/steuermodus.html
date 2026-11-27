@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Steuermodus · Physical AI Harness</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="stylesheet" href="/static/app.css">
+<!-- KERN-SEITE · Steuermodus im eigenen Fenster (Uebersicht ueber den Roboter). Teams bauen in teams/<team>/ui/. -->
+</head>
+<body class="steuer-fenster">
+<header class="kopf">
+  <div class="marke" title="RoboForge"><img src="/static/logo.png" alt="RoboForge"></div>
+  <div class="titel"><small>Physical AI Harness</small><b id="sm-titel">Steuermodus</b></div>
+  <div class="luecke"></div>
+  <span class="leise klein">F5 Start · F6 Stop · F7 Behalten · F8 Verwerfen · F3/F4 Plan · F12 alle ablegen</span>
+  <button class="stop-knopf" onclick="alleAblegen()" title="Alle Arme sofort stoppen und ablegen (F12)">STOP</button>
+</header>
+<main class="steuer-rahmen"><div id="steuermodus"><p class="leise">Verbinde mit dem Harness ...</p></div></main>
+<div id="toast"></div>
+<script src="/static/kern.js"></script>
+<script src="/static/station.js"></script>
+<script>
+  (async () => {
+    const arm = new URLSearchParams(location.search).get("arm");
+    let ziel = arm;
+    for (let i = 0; !ziel && i < 60; i++) {           // ohne Angabe: erster Arm des Harness
+      try { ziel = ((await skill("arme.liste")) || [])[0]?.arm; } catch (e) { await new Promise((r) => setTimeout(r, 2000)); }
+    }
+    if (!ziel) return ($("#steuermodus").innerHTML = `<p class="leise">Harness nicht erreichbar.</p>`);
+    new Steuermodus($("#steuermodus"), ziel, { fenster: true });
+    Wache.start(false);                                 // Rueckfragen auch hier zeigen
+  })();
+</script>
+</body>
+</html>

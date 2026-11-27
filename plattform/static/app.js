@@ -1,8 +1,10 @@
-// Physical AI Harness by RoboForge - Oberfläche. Spricht nur mit dem lokalen Server (/api/...).
+// Physical AI Harness by RoboForge - Hauptseite. Spricht nur mit dem lokalen Server (/api/...).
+//
+// === KERN-DATEI · fuer Hackathon-Teams NICHT zum Umbauen gedacht ===
+// Teams erweitern in teams/<team>/: orchestrator.py (Ablauf), skills/ (Code-Skills), ui/index.html (eigene Oberflaeche,
+// erscheint im Abschnitt "Interface"), plaene/*.json (eigene Aufnahme-/Trainingsplaene). Siehe teams/_vorlage/AGENTS.md.
+// Hilfen ($, esc, api, skill, toast, dialog) kommen aus kern.js, Roboter/Steuermodus aus station.js.
 "use strict";
-const $ = (s, el = document) => el.querySelector(s);
-const $$ = (s, el = document) => [...el.querySelectorAll(s)];
-const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const ABSCHNITTE = ["start", "harness", "aufnehmen", "trainieren", "orchestrator", "interface", "teilen", "vorstellen"];
 const TITEL = { start: "Start", harness: "Roboter einrichten", aufnehmen: "Daten aufnehmen", trainieren: "VLA trainieren",
   orchestrator: "Orchestrator & Skills", interface: "Euer Interface", teilen: "Teilen", vorstellen: "Vorstellen" };
@@ -14,24 +16,6 @@ let gestartet = false;
 let offeneDatei = null;
 let gelesenErinnerungen = new Set();
 
-async function api(pfad, body) {
-  const opt = body === undefined ? {} : { method: "POST", headers: { "Content-Type": "application/json", "X-RF": "1" }, body: JSON.stringify(body) };
-  const r = await fetch(pfad, opt);
-  const j = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(j.fehler || r.statusText);
-  return j;
-}
-
-function toast(text, fehler = false) {
-  const d = document.createElement("div");
-  d.textContent = text;
-  if (fehler) d.className = "fehler";
-  $("#toast").appendChild(d);
-  setTimeout(() => d.remove(), fehler ? 7000 : 4000);
-}
-async function tu(fn, ok) {
-  try { const r = await fn(); if (ok) toast(ok); return r; } catch (e) { toast(e.message, true); }
-}
 function arbeit(abschnitt, was) { api("/api/arbeit", { abschnitt, was }).catch(() => {}); }
 
 // ---------------- Kopfzeile: Glocke, Profil, Stop ----------------
@@ -45,15 +29,20 @@ $("#profil").onclick = () => panel("panel-profil");
 document.addEventListener("click", (e) => {
   if (!e.target.closest(".panel, #glocke, #profil, #phase-pille")) for (const p of $$(".panel")) p.classList.remove("offen");
 });
-$("#stop").onclick = () => tu(() => api("/api/skill", { name: "notablage" }), "STOP gesendet: alle Arme legen sich ab.");
+$("#stop").onclick = () => alleAblegen();
 
 function zeichneKopf() {
   const h = Z.hackathon || {};
   const ph = h.phasen || [];
   const akt = h.aktuell != null ? ph[h.aktuell] : null;
   const nxt = h.naechste != null ? ph[h.naechste] : null;
-  $("#phase-pille").innerHTML = akt ? `<small>Phase bis ${esc(akt.ende)}</small><b>${esc(akt.titel)}</b>` + (nxt ? ` <span>· danach ${esc(nxt.titel)} (${esc(nxt.start)})</span>` : "")
-    : `<small>Hackathon</small>${h.heute ? "Plan" : esc((h.datum || "").split("-").reverse().join("."))}`;
+  $("#hk-titel").textContent = h.titel || "Physical AI Hackathon Karlsruhe";
+  $("#hk-datum").textContent = (h.datum || "").split("-").reverse().join(".");
+  const L = Z.links || {};
+  if (L.github) { $("#link-github").href = L.github; $("#link-github").title = Z.team ? `GitHub: euer Team-Ordner (teams/${Z.team.ordner})` : "GitHub: Hackathon-Repository"; }
+  if (L.huggingface) $("#link-hf").href = L.huggingface;
+  $("#phase-pille").hidden = !akt;
+  $("#phase-pille").innerHTML = akt ? `<small>Phase bis ${esc(akt.ende)}</small><b>${esc(akt.titel)}</b>` + (nxt ? ` <span>· danach ${esc(nxt.titel)} (${esc(nxt.start)})</span>` : "") : "";
   $("#plan-titel").textContent = h.titel || "Hackathon-Plan";
   $("#plan-liste").innerHTML = ph.map((p, i) => `<li data-ab="${esc(p.abschnitt)}" class="${i === h.aktuell ? "jetzt" : (h.heute && h.aktuell != null && i < h.aktuell ? "vorbei" : "")}">
     <span class="zeit">${esc(p.start)}–${esc(p.ende)}</span><span><b>${esc(p.titel)}</b><br><span class="leise klein">${esc(p.text)}</span></span></li>`).join("");
@@ -150,54 +139,89 @@ function zeichneStart() {
   }
 }
 
-// ---------------- 1 Harness ----------------
-let kameraTakt = 0;
+// ---------------- 1 Roboter (Station) und Steuermodus ----------------
+let steuer = null;
 function zeichneHarness() {
   const h = Z.harness;
   const st = $("#harness-status");
   if (h.verbunden) {
     st.className = "hinweis"; st.innerHTML = `<span class="punkt an"></span> Harness verbunden · ${h.arme.length} Arm(e)`;
+    const arm = (h.arme[0] || {}).arm;
+    if (arm && (!steuer || steuer.arm !== arm)) {
+      if (steuer) steuer.stop();
+      steuer = new Steuermodus($("#steuermodus"), arm, { aktiv: () => sichtbar === "aufnehmen" });
+    }
   } else {
     st.className = "hinweis warn";
-    st.innerHTML = `<span class="punkt aus"></span> Harness läuft nicht. <button class="haupt" onclick="harnessStarten()">Harness starten</button>
-      <span class="klein leise">(öffnet das Harness-Fenster; dort werden Bewegungen bestätigt)</span>`;
+    if (h.fremd) st.innerHTML = `<span class="punkt aus"></span> <b>Anderer Harness aktiv</b> (${esc(h.fremd)}). Diese App nutzt nur ihren eigenen Harness
+      mit eigenen Daten. Den anderen schließen (X im Harness-Fenster), dann <button class="haupt" onclick="harnessStarten()">Harness starten</button>`;
+    else st.innerHTML = `<span class="punkt aus"></span> Harness läuft nicht. <button class="haupt" onclick="harnessStarten()">Harness starten</button>
+      <span class="klein leise">Er steuert Arme und Kameras im Hintergrund. Findet er keine Arme: unten „Arme finden“.</span>`;
+    if (steuer) { steuer.stop(); steuer = null; $("#steuermodus").innerHTML = `<p class="leise" style="padding:10px;margin:0">Wartet auf den Harness ...</p>`; }
   }
-  const box = $("#arme");
-  const sig = JSON.stringify(h.arme.map((a) => [a.arm, a.running, a.status, a.ki_model, a.kameras]));
-  if (box.dataset.sig !== sig) {
-    box.dataset.sig = sig;
-    box.innerHTML = h.arme.map((a) => `<div class="karte" style="margin-bottom:10px">
-      <div class="kkopf" style="height:40px"><span class="punkt ${a.running ? "an" : ""}"></span><b>${esc(a.label)}</b>
-        <span class="leise">${esc(a.status || "")}</span><span style="flex:1"></span>
-        <button class="haupt" onclick="station('leader','${esc(a.arm)}')">Leader übernehmen</button>
-        <button onclick="station('steuermodus','${esc(a.arm)}')">Steuermodus</button>
-        <button class="gefahr" onclick="ablegen('${esc(a.arm)}')">Stop · ablegen</button></div>
-      <div class="kameras">${(a.kameras || []).map((k) => `<div class="kamera"><div class="name"><span>${esc(k)}</span></div>
-        <div class="bild"><img data-arm="${esc(a.arm)}" data-kamera="${esc(k)}" alt=""><span class="leer">kein Bild</span></div></div>`).join("")}</div>
-    </div>`).join("") || `<p class="leise">Keine Arme gefunden.</p>`;
-    const sel = $("#aufnahme-arm"), alt = sel.value;
-    sel.innerHTML = h.arme.map((a) => `<option value="${esc(a.arm)}">${esc(a.label)}</option>`).join("");
-    if (alt) sel.value = alt;
-    sel.hidden = h.arme.length < 2;            // ein Setup pro Team: keine Auswahl noetig
-  }
+  zeichneArmeFinden();
 }
-function kamerasAktualisieren() {
-  if (!Z || !Z.harness.verbunden || !["harness", "aufnehmen"].includes(sichtbar) || document.hidden) return;
-  for (const img of $$("#arme img")) {
-    const n = new Image();
-    n.onload = () => { img.src = n.src; img.nextElementSibling.style.display = "none"; };
-    n.onerror = () => { img.removeAttribute("src"); img.nextElementSibling.style.display = ""; };
-    n.src = `/api/kamera?arm=${encodeURIComponent(img.dataset.arm)}&kamera=${encodeURIComponent(img.dataset.kamera)}&t=${++kameraTakt}`;
-  }
-}
-setInterval(kamerasAktualisieren, 700);
 async function harnessStarten() { await tu(() => api("/api/harness/starten", {}), "Harness startet ... (ca. 10 s)"); }
-async function station(was, arm, abschnitt) {
-  const args = { was }; if (arm) args.arm = arm;
-  await tu(() => api("/api/skill", { name: "station.oeffnen", args, abschnitt: abschnitt || "harness" }),
-    was === "leader" || was === "ki" ? "Bitte im Harness-Fenster bestätigen (Mensch vor Ort)." : "Im Harness-Fenster geöffnet.");
+function steuermodusZeigen() { geheZu("aufnehmen"); }
+
+// Arme finden: Board-Liste und ein fertiger Auftrag fuer einen Coding-Agent (mit dem Ordner dieses Rechners)
+let boardsZeit = 0;
+function armeFindenPrompt() {
+  const kit = Z.kit || "(Ordner der Software)";
+  const py = Z.system === "win32" ? "python" : "python3";
+  const station = Z.team?.station?.name || "Setup 1";
+  return `Du hilfst mir, einen SO-101-Roboterarm (Follower + Leader) für den Physical AI Harness by RoboForge einzurichten.
+
+WICHTIG: Du brauchst Zugriff auf diesen Ordner. Dort liegt die Software als Quellcode:
+${kit}
+Arbeite nur in diesem Ordner. Hast du keinen Zugriff, sag mir, dass ich dich dort starten oder den Ordner freigeben soll.
+
+Lies zuerst ${kit}${Z.system === "win32" ? "\\" : "/"}AGENTS.md (Regeln und Aufbau).
+Regeln: Den Arm NICHT bewegen. Keine Werte in die Servos (EEPROM) schreiben. Nie 12 V. Keine Schlüssel oder Tokens ausgeben.
+
+Aufgabe: Finde heraus, welches Servo-Board (USB-Seriennummer) zum Follower und welches zum Leader gehört, und trage beide ein.
+1. Im Ordner ausführen: ${py} -m plattform.station boards
+   (zeigt alle Boards mit Port und Seriennummer; öffnet keinen Port)
+2. Bitte mich, den USB-Stecker des LEADER-Arms kurz zu ziehen, und führe den Befehl erneut aus.
+   Das Board, das fehlt, ist der Leader. Danach soll ich ihn wieder einstecken.
+3. Ausführen: ${py} -m plattform.station arme --follower <Seriennummer Follower> --leader <Seriennummer Leader> --name "${station}"
+   (schreibt config.json; Kameras und Ablage bleiben erhalten)
+4. Sag mir, dass ich im Physical AI Harness unter „1 · Roboter“ auf „Harness neu starten“ klicken soll (oder ihn starten, falls er nicht läuft).
+   Danach sollen dort beide Boards als verbunden erscheinen.
+Erkläre jeden Schritt kurz auf Deutsch, bevor du ihn ausführst.`;
 }
-async function ablegen(arm) { await tu(() => api("/api/skill", { name: "arm.ablegen", args: { arm } }), "Arm legt sich ab."); }
+async function zeichneArmeFinden() {
+  const box = $("#arme-finden-inhalt");
+  if (!box.dataset.fertig) {
+    box.dataset.fertig = "1";
+    box.innerHTML = `<p class="klein">Der Harness erkennt die Arme an der <b>USB-Seriennummer</b> ihrer Servo-Boards (in <code>config.json</code>).
+      Neue Station oder „Board fehlt“? Gib diesen Auftrag an Claude Code oder einen anderen Coding-Agent. Er muss Zugriff auf den
+      Ordner der Software haben; der Pfad dieses Rechners steht schon drin.</p>
+      <div class="zeile"><span class="leise klein">Software-Ordner</span><code data-f="kit"></code>
+        <button class="klein-knopf" onclick="api('/api/ordner',{was:'kit'}).catch(e=>toast(e.message,true))">Ordner öffnen</button></div>
+      <div class="prompt-box"><div class="zeile" style="justify-content:space-between"><b class="klein">Auftrag für den Coding-Agent</b>
+        <button class="haupt" onclick="promptKopieren()">Kopieren</button></div><pre data-f="prompt"></pre></div>
+      <div class="zeile" style="margin-top:8px"><b class="klein">Angeschlossene Boards</b><button class="klein-knopf" onclick="boardsLaden()">Neu suchen</button></div>
+      <div data-f="boards" class="klein leise">...</div>
+      <p class="klein leise" style="margin:8px 0 0">Selbst machen: <code>python -m plattform.station boards</code>, dann
+        <code>python -m plattform.station arme --follower … --leader …</code> im Software-Ordner. Danach den Harness neu starten.</p>`;
+  }
+  $("[data-f=kit]", box).textContent = Z.kit || "";
+  $("[data-f=prompt]", box).textContent = armeFindenPrompt();
+  if ($("#arme-finden").open && Date.now() - boardsZeit > 8000) boardsLaden();
+}
+async function boardsLaden() {
+  boardsZeit = Date.now();
+  const b = await api("/api/boards").catch((e) => ({ fehler: e.message }));
+  const el = $("#arme-finden-inhalt [data-f=boards]");
+  el.innerHTML = b.fehler ? esc(b.fehler) : b.length ? `<table><tr><th>Port</th><th>Seriennummer</th><th>Beschreibung</th></tr>${b.map((x) =>
+    `<tr><td><code>${esc(x.port)}</code></td><td><code>${esc(x.seriennummer)}</code></td><td>${esc(x.beschreibung)}</td></tr>`).join("")}</table>` : "Kein Board gefunden. USB-Kabel und Netzteil (5–7,4 V, nie 12 V) prüfen.";
+}
+async function promptKopieren() {
+  try { await navigator.clipboard.writeText(armeFindenPrompt()); toast("Auftrag kopiert. In Claude Code (o. ä.) einfügen."); }
+  catch (e) { toast("Kopieren ging nicht. Bitte den Text markieren und kopieren.", true); }
+}
+$("#arme-finden").addEventListener("toggle", () => { if ($("#arme-finden").open) boardsLaden(); });
 
 // ---------------- 2 Aufnehmen ----------------
 async function zeichnePlan() {
@@ -272,10 +296,13 @@ $("#tr-start").onclick = async () => {
   if (r) toast(`Training ${r.name} gestartet.`);
 };
 async function modellTesten(name) {
-  const arm = $("#aufnahme-arm").value || (Z.harness.arme[0] || {}).arm;
+  const arm = (Z.harness.arme[0] || {}).arm;
   if (!arm) return toast("Harness nicht verbunden.", true);
-  const ok = await tu(() => api("/api/skill", { name: "ki.modell_waehlen", args: { arm, modell: name } }));
-  if (ok) station("ki", arm, "trainieren");
+  const ok = await tu(() => skill("ki.modell_waehlen", { arm, modell: name }));
+  if (!ok) return;
+  await tu(() => skill("station.quelle", { arm, quelle: "ki" }));
+  geheZu("harness");
+  setTimeout(() => uebernehmen(arm), 600);       // zeigt die Freigabe-Frage (Mensch vor Ort)
 }
 
 // ---------------- 3 Trainings ----------------
@@ -432,9 +459,13 @@ async function laden() {
   if (!gestartet && !laden.einmal) { laden.einmal = true; zumStartpunkt(); }
 }
 async function init() {
+  Station.init($("#station"));
   await laden();
   await datenLaden();
   ladeSkills();
+  Wache.start(true);
+  setInterval(() => { if (Z?.harness?.verbunden && !document.hidden) Station.laden(); }, 1500);
+  setInterval(() => { if (Z?.harness?.verbunden && sichtbar === "harness") Station.kameras(640); }, 700);
   setInterval(laden, 2000);
   setInterval(datenLaden, 10000);
   setInterval(() => { if (sichtbar === "orchestrator") ladeOrch(); }, 2000);

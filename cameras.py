@@ -66,10 +66,23 @@ _mf_ready = False
 
 
 def list_devices():
-    """[(opencv_index, geraete_id, name)] in Media-Foundation-Reihenfolge. Leer, wenn nicht ermittelbar."""
-    if sys.platform == "darwin":
-        return mac_devices()
-    return _windows_devices()
+    """[(opencv_index, geraete_id, name)] in Media-Foundation-Reihenfolge. Leer, wenn nicht ermittelbar.
+    Dazu OAK-D-Kameras (depthai), falls installiert: Index "oak:<id>", Geraete-ID "OAK"."""
+    out = mac_devices() if sys.platform == "darwin" else _windows_devices()
+    try:
+        import oak
+        out = list(out) + oak.geraete()
+    except Exception:
+        pass
+    return out
+
+
+def neue_kamera(index, device="", **kw):
+    """Passende Aufnahme fuer ein Geraet: OAK-D ueber depthai, sonst OpenCV."""
+    if isinstance(index, str) and index.startswith("oak:"):
+        import oak
+        return oak.OakKamera(index, device, **kw)
+    return Camera(index, device, **kw)
 
 
 def mac_devices(run=subprocess.run):
@@ -296,10 +309,10 @@ class CameraManager:
     poll() regelmaessig (z. B. alle 2 s) aus einem Hintergrund-Thread aufrufen."""
     SIGNAL_TIMEOUT = 2.0
 
-    def __init__(self, slots=None, lister=list_devices, factory=Camera):
+    def __init__(self, slots=None, lister=list_devices, factory=None):
         self.slots = slots or load_slots()
         self.lister = lister
-        self.factory = factory
+        self.factory = factory or neue_kamera
         self.cams = [None] * SLOTS
         self.devices = [""] * SLOTS
         self.fixed = [False] * SLOTS

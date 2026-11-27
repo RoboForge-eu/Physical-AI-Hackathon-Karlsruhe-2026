@@ -9,6 +9,7 @@ if not exist .venv\Scripts\python.exe (
   %PY% -m venv .venv || (pause & exit /b 1)
   .venv\Scripts\python -m pip install --upgrade pip
   .venv\Scripts\python -m pip install -r requirements-plattform.txt || (echo Installation fehlgeschlagen & pause & exit /b 1)
+  .venv\Scripts\python -m pip install depthai || echo OAK-D-Lite-Unterstuetzung nicht installiert ^(optional^)
 )
 if not exist ki-env\Scripts\python.exe (
   echo [2/2] Richte die KI-Umgebung ein ^(LeRobot, PyTorch - gross, bitte warten^) ...

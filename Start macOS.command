@@ -8,6 +8,7 @@ if [ ! -x .venv/bin/python ]; then
   "$PY" -m venv .venv || { read -n 1; exit 1; }
   .venv/bin/python -m pip install --upgrade pip
   .venv/bin/python -m pip install -r requirements-plattform.txt || { echo "Installation fehlgeschlagen"; read -n 1; exit 1; }
+  .venv/bin/python -m pip install depthai || echo "OAK-D-Lite-Unterstuetzung nicht installiert (optional)"
 fi
 if [ ! -x ki-env/bin/python ]; then
   echo "[2/2] Richte die KI-Umgebung ein (LeRobot, PyTorch - gross, bitte warten) ..."

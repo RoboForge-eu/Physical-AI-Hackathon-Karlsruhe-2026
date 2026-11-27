@@ -10,11 +10,17 @@
 <link rel="apple-touch-icon" href="/static/icon-192.png">
 <link rel="manifest" href="/static/app.webmanifest">
 <link rel="stylesheet" href="/static/app.css">
+<!-- KERN-SEITE · Teams bauen ihre Oberflaeche in teams/<team>/ui/index.html (erscheint im Abschnitt "Interface"). -->
 </head>
 <body>
 <header class="kopf">
   <div class="marke" title="RoboForge"><img src="/static/logo.png" alt="RoboForge"></div>
-  <div class="titel"><small>RoboForge</small><b>Physical AI Harness</b></div>
+  <div class="titel"><small>Hackathon</small><b id="hk-titel">Physical AI Hackathon Karlsruhe</b></div>
+  <div class="datum-block"><small>Datum</small><b id="hk-datum">28.11.2026</b></div>
+  <div class="link-gruppe">
+    <a class="icon-knopf" id="link-github" href="https://github.com/RoboForge-eu/Physical-AI-Hackathon-Karlsruhe-2026" target="_blank" rel="noopener" title="GitHub: Hackathon-Repository"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+    <a class="icon-knopf" id="link-hf" href="https://huggingface.co/RoboForge" target="_blank" rel="noopener" title="Hugging Face: RoboForge"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="11" r="8.5" fill="#ffd21e"/><circle cx="9" cy="9.3" r="1.25" fill="#2b2b2b"/><circle cx="15" cy="9.3" r="1.25" fill="#2b2b2b"/><path d="M8.3 12.6c1 1.9 2.2 2.6 3.7 2.6s2.7-.7 3.7-2.6" fill="#2b2b2b"/><path d="M3.2 15.8c.9-1.6 2.6-1.9 3.4-.7l1.6 2.4c.6.9.2 2.1-.8 2.5l-1.4.6c-1.4.6-3-.3-3.3-1.8-.1-1 .1-2.1.5-3zM20.8 15.8c-.9-1.6-2.6-1.9-3.4-.7l-1.6 2.4c-.6.9-.2 2.1.8 2.5l1.4.6c1.4.6 3-.3 3.3-1.8.1-1-.1-2.1-.5-3z" fill="#ff9d0b"/></svg></a>
+  </div>
   <div class="phase-pille" id="phase-pille" title="Hackathon-Plan"></div>
   <div class="luecke"></div>
   <button class="icon-knopf" id="glocke" title="Hackathon-Plan und Erinnerungen">
@@ -79,16 +85,14 @@
     <section id="harness">
       <div class="abschnitt-kopf"><span class="nr">1</span><h2>Roboter einrichten</h2></div>
       <div class="abschnitt-inhalt">
-        <p class="einleitung">Der <b>Harness</b> steuert Arm, Kameras und Sicherheit. Jede Bewegung bestätigt ein Mensch vor Ort im
-          Harness-Fenster. Nie 12 V an die Arme anschließen.</p>
+        <p class="einleitung">Alles aus dem <b>Harness</b>: Arm übernehmen, Kameras, Kalibrieren, Spannung, Arbeitsbereich, Netz.
+          Jede Bewegung bestätigt ein <b>Mensch vor Ort</b> im Dialog. Stop und Ablegen gehen immer, <b>F12</b> legt alle Arme ab.
+          Nie 12 V an die Arme anschließen.</p>
         <div id="harness-status" class="hinweis"></div>
-        <div class="zeile" style="margin-bottom:10px">
-          <button onclick="station('kameras')">Kameras zuordnen</button>
-          <button onclick="station('harness')" title="Im Harness-Fenster bei jeder Kamera 'Schärfe prüfen'">Schärfe prüfen</button>
-          <button onclick="station('kalibrieren')">Arm kalibrieren</button>
-          <button onclick="station('spannung')">Spannung messen</button>
-        </div>
-        <div id="arme"></div>
+        <div id="station"></div>
+        <details class="karte" id="arme-finden" style="margin-top:10px"><summary class="kkopf"><b>Arme finden</b>
+          <span class="leise">welches Board ist Follower, welches Leader · mit KI-Hilfe</span></summary>
+          <div class="kinhalt" id="arme-finden-inhalt"></div></details>
       </div>
     </section>
 
@@ -98,6 +102,9 @@
       <div class="abschnitt-inhalt">
         <p class="einleitung">Ein VLA lernt durch <b>Vormachen</b>. Der Aufnahmeplan sagt für jede Runde, <b>wo</b> der Gegenstand
           stehen soll. So lernt das Modell viele verschiedene Lagen statt immer derselben Bewegung.</p>
+        <div class="karte akzent" style="margin-bottom:10px"><div class="kkopf"><b>Steuermodus</b>
+            <span class="leise">alle Kameras · Aufnahme · Aufnahmeplan · Tasten F3–F8</span></div>
+          <div id="steuermodus"><p class="leise" style="padding:10px;margin:0">Wartet auf den Harness ...</p></div></div>
         <div class="raster" style="grid-template-columns: minmax(340px, 1.4fr) minmax(300px, 1fr);">
           <div class="karte"><div class="kkopf"><b>Plan</b><span style="flex:1"></span><select id="plan-wahl" style="height:24px"></select></div>
             <div class="kinhalt" id="plan-karte"></div></div>
@@ -109,8 +116,6 @@
                 <li>Kurz still halten, dann <b>Stop</b>. Gut? <b>Behalten</b>, sonst <b>Verwerfen</b>.</li>
                 <li>Nächste Runde: Gegenstand an die neue Stelle. Ziel: 40-50 Episoden.</li>
               </ol>
-              <div class="zeile"><select id="aufnahme-arm"></select>
-                <button class="haupt" onclick="station('steuermodus', $('#aufnahme-arm').value, 'aufnehmen')">Im Steuermodus aufnehmen</button></div>
             </div></div>
             <div class="karte"><div class="kkopf"><b>Datensätze</b></div><div id="datensaetze"></div></div>
           </div>
@@ -223,6 +228,8 @@
   </main>
 </div>
 <div id="toast"></div>
+<script src="/static/kern.js"></script>
+<script src="/static/station.js"></script>
 <script src="/static/app.js"></script>
 </body>
 </html>

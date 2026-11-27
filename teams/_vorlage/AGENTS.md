@@ -16,6 +16,24 @@ begruendet stoppen. Drei Bausteine, ein Ablauf:
 | **Bildverarbeitung** | Kamerabild pruefen (Fach belegt? Platte schraeg?) | `skills/` (OpenCV, kleine Modelle) |
 | **Orchestrator** | verbindet alles zu einem Ablauf | `orchestrator.py` |
 
+## Wo du baust – und wo nicht (wichtig)
+
+Die Plattform ist fertig und fuer Einsteiger gemacht. **Baue sie nicht neu.** Erweitere nur die Team-Bausteine:
+
+| Erweitern (euer Teil) | Datei im Team-Ordner | erscheint in der App |
+|---|---|---|
+| Ablauf / Orchestrator | `orchestrator.py` | 4 · Orchestrator |
+| Code-Skills, Bildverarbeitung | `skills/*.py` | 4 · Orchestrator (ueber `orchestrator.py`) |
+| Eigenes Interface | `ui/index.html` (+ eigene .js/.css daneben) | 5 · Interface |
+| Trainingsplan (Aufnahmeplan fuer ein VLA) | `plaene/<id>.json` (Vorlage: `plaene/README.md`, Beispiel `../../plaene/elektrodose.json`) | 2 · Daten (Steuermodus) und 3 · Training |
+| Praesentation | `vorstellung.md` | 7 · Demo |
+
+**Nicht aendern** (Kern, gilt fuer alle Teams, Dateien sind mit `KERN-DATEI` markiert): `plattform/` (Webseite und
+Server), `ros.py` und `webstation.py` (Harness, Sicherheit), `ki/` (Aufnahme, Training), `cameras.py`, `oak.py`,
+`calibration/`, `config.json`. Fehlt dir eine Funktion des Harness, nutze die vorhandenen Skills (`skills.liste`)
+oder baue einen Code-Skill in `skills/`. Brauchst du wirklich eine Aenderung am Kern: kurz begruenden und die
+Veranstalter fragen.
+
 ## Was du hier tun darfst
 
 - **Nur in diesem Ordner** arbeiten (`teams/<team>/`). Nur dieser Ordner wird geteilt (GitHub-Zweig des Teams);
@@ -40,6 +58,13 @@ ros.call("modelle.liste")
 
 Wichtige Skills: `sitzung.anfragen`, `sitzung.status`, `sitzung.beenden`, `modell.vorladen`, `modell.ausfuehren`,
 `pose.anfahren`, `greifer.setzen`, `greifer.pruefen`, `vision.messen`, `arm.ablegen`, `notablage`.
+
+Kameras: `kamera.bild` (Kameras des Arms), `kamera.plaetze` (alle Plaetze), `kamera.platz_bild` (z. B. die zweite
+Uebersichtskamera **OAK-D Lite** zum Experimentieren) und `kamera.tiefe` (OAK-D Lite: Entfernung in mm an einer
+Bildstelle, optional als Tiefenbild).
+
+Befehle mit `station.*`, `steuer.*`, `spiegel.*` und `web.*` gehoeren der Oberflaeche (Bedienung vor Ort). Rufe sie
+aus Orchestrator oder Skills **nie** auf.
 
 Im Interface (Browser) dasselbe per:
 

@@ -1,5 +1,9 @@
 """Webserver der Plattform (nur 127.0.0.1). Liefert die Seite aus static/ und eine JSON-Schnittstelle /api/...
 
+=== KERN-DATEI · fuer Hackathon-Teams NICHT zum Umbauen gedacht ===
+Teams bauen in teams/<team>/ (orchestrator.py, skills/, ui/, plaene/). Ihre Oberflaeche (ui/index.html) erscheint im
+Abschnitt "Interface" und ruft den Harness ueber POST /api/skill auf. Siehe teams/_vorlage/AGENTS.md.
+
 Sicherheit:
   - nur lokal erreichbar; Host-Kopfzeile wird geprueft (gegen DNS-Rebinding)
   - jede aendernde Anfrage braucht die Kopfzeile 'X-RF: 1' (fremde Webseiten koennen sie nicht setzen)
@@ -27,13 +31,31 @@ class Harness:
     def _loop(self):
         while True:
             try:
-                arme = self.client.call("arme.liste", timeout=5)
-                st = {"verbunden": True, "arme": arme, "fehler": "", "zeit": time.time()}
+                fremd = self.fremder_harness()
+                if fremd:
+                    st = {"verbunden": False, "arme": [], "fremd": fremd, "zeit": time.time(),
+                          "fehler": f"Es läuft ein anderer Harness (aus {fremd}). Bitte diesen schließen, "
+                                    "dann hier „Harness starten“."}
+                else:
+                    arme = self.client.call("arme.liste", timeout=5)
+                    st = {"verbunden": True, "arme": arme, "fehler": "", "zeit": time.time()}
             except Exception as exc:
                 st = {"verbunden": False, "arme": [], "fehler": str(exc)[:200], "zeit": time.time()}
             with self.lock:
                 self.state = st
             time.sleep(2.0 if st["verbunden"] else 4.0)
+
+    def fremder_harness(self):
+        """Ordner eines Harness, der NICHT zu dieser Installation gehoert (sonst None). Jede Installation hat ihre eigenen
+        Daten (Kalibrierung, Datensaetze, Modelle); die Oberflaeche darf nur ihren eigenen Harness steuern."""
+        try:
+            ordner = self.client.call("harness.info", timeout=5)["ordner"]
+        except Exception as exc:
+            if "Unbekannter Befehl" in str(exc):
+                return "einer älteren Installation"
+            raise
+        eigen = os.path.normcase(os.path.realpath(KIT))
+        return None if os.path.normcase(os.path.realpath(ordner)) == eigen else ordner
 
     def status(self):
         with self.lock:
@@ -45,6 +67,8 @@ class Harness:
     def starten(self):
         if self.status()["verbunden"]:
             return {"laeuft": True}
+        if self.status().get("fremd"):
+            raise ValueError(self.status()["fehler"])
         from ki.geraet import popen_detached_kwargs
         exe = sys.executable
         pyw = os.path.join(os.path.dirname(exe), "pythonw.exe")
@@ -90,7 +114,17 @@ class App:
                 "hackathon": self.hackathon.jetzt(), "geraet": self._geraet,
                 "training": self._safe(lambda: self.queue().snapshot(), []),
                 "aufgaben": self.aufgaben.status(), "orchestrator": {"laeuft": self.orch.laeuft()},
-                "pakete": len(self.teams.pakete_liste()), "system": sys.platform}
+                "pakete": len(self.teams.pakete_liste()), "system": sys.platform,
+                "kit": KIT, "team_pfad": self.team_ordner(), "links": self.links()}
+
+    def links(self):
+        """GitHub (Team-Ordner, sonst das Repo) und Hugging Face (RoboForge) fuer die Kopfzeile."""
+        from .station import REPO, ORG
+        t = self.team() or {}
+        repo = ((t.get("github") or {}).get("repo") or REPO).rstrip("/").removesuffix(".git")
+        org = (t.get("huggingface") or {}).get("org") or ORG
+        return {"github": f"{repo}/tree/main/teams/{t['ordner']}" if t.get("ordner") else repo,
+                "github_repo": repo, "huggingface": f"https://huggingface.co/{org}"}
 
     @staticmethod
     def _safe(fn, default):
@@ -281,9 +315,22 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, APP.daten())
             if p == "/api/plan":
                 return self._send(200, APP.plan(q["id"]))
-            if p == "/api/kamera":
-                r = APP.harness.call("kamera.bild", {"arm": q["arm"], "kamera": q["kamera"]}, timeout=5)
+            if p == "/api/kamera" and "platz" in q:   # freie Kamera (z. B. OAK-D Lite)
+                r = APP.harness.call("kamera.platz_bild", {"platz": int(q["platz"]), "breite": int(q.get("breite") or 640)},
+                                     timeout=5)
                 return self._send(200, base64.b64decode(r["jpeg_base64"]), "image/jpeg")
+            if p == "/api/kamera":
+                args = {"arm": q["arm"], "kamera": q["kamera"]}
+                if q.get("breite"):
+                    args["breite"] = int(q["breite"])
+                r = APP.harness.call("kamera.bild", args, timeout=5)
+                return self._send(200, base64.b64decode(r["jpeg_base64"]), "image/jpeg")
+            if p == "/api/spiegelbild":               # Bild aus einem gespiegelten Harness-Fenster
+                r = APP.harness.call("spiegel.bild", {"id": q["id"], "pfad": q["pfad"],
+                                                      "breite": int(q.get("breite") or 960)}, timeout=8)
+                return self._send(200, base64.b64decode(r["base64"]), r["typ"])
+            if p == "/steuermodus":                   # Steuermodus im eigenen Fenster (gleiches Design)
+                return self._file(os.path.join(STATIC, "steuermodus.html"))
             if p == "/api/skills":
                 return self._send(200, APP.harness.call("skills.liste", timeout=10))
             if p == "/api/orchestrator":
@@ -298,6 +345,9 @@ class Handler(BaseHTTPRequestHandler):
             if p == "/api/git":
                 return self._send(200, kern.git_info(APP.team()) if APP.team() else {"klon": False,
                                                                                     "grund": "nicht angemeldet"})
+            if p == "/api/boards":                    # angeschlossene Servo-Boards (nur USB-Liste, oeffnet keinen Port)
+                from .station import boards
+                return self._send(200, [{"port": d, "seriennummer": sn, "beschreibung": desc} for d, sn, desc in boards()])
             if p == "/api/geraet":
                 APP._geraet = kern.geraet(refresh=q.get("neu") == "1")
                 return self._send(200, APP._geraet)
@@ -324,6 +374,15 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, {"team": kern.public(paket), "hinweise": notes})
             if p == "/api/logout":
                 APP.teams.logout()
+                return self._send(200, {"ok": True})
+            if p == "/api/ordner":                    # Software- oder Team-Ordner im Explorer/Finder oeffnen
+                ziel = APP.team_ordner() if b.get("was") == "team" else KIT
+                if not ziel or not os.path.isdir(ziel):
+                    raise ValueError("Ordner nicht gefunden (angemeldet?)")
+                if sys.platform == "win32":
+                    os.startfile(ziel)
+                else:
+                    subprocess.Popen(["open" if sys.platform == "darwin" else "xdg-open", ziel])
                 return self._send(200, {"ok": True})
             if p == "/api/harness/starten":
                 return self._send(200, APP.harness.starten())

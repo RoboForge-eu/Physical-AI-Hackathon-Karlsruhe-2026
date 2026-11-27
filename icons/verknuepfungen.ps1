@@ -1,3 +1,4 @@
+# Physical AI Harness: icons\plattform_verknuepfung.ps1 (eigene Installation).
 # Legt Verknuepfungen fuer Harness und Fernsteuerung an (Startmenue + Desktop), mit Icon und eigener Taskleisten-ID.
 #   powershell -ExecutionPolicy Bypass -File icons\verknuepfungen.ps1
 $ErrorActionPreference = "Stop"
@@ -29,8 +30,7 @@ $sh = New-Object -ComObject WScript.Shell
 $start = Join-Path ([Environment]::GetFolderPath("Programs")) "RoboForge"
 New-Item -ItemType Directory -Force $start | Out-Null
 $desk = [Environment]::GetFolderPath("Desktop")
-foreach ($a in @(@{n="RoboForge Harness"; s="ros.py"; i="harness"}, @{n="RoboForge Fernsteuerung"; s="fernsteuerung.py"; i="fernsteuerung"},
-                 @{n="Physical AI Harness"; s="physical_ai_harness.py"; i="plattform"})) {
+foreach ($a in @(@{n="RoboForge Harness"; s="ros.py"; i="harness"}, @{n="RoboForge Fernsteuerung"; s="fernsteuerung.py"; i="fernsteuerung"})) {
   foreach ($dir in @($start, $desk)) {
     $lnk = Join-Path $dir "$($a.n).lnk"
     $l = $sh.CreateShortcut($lnk)

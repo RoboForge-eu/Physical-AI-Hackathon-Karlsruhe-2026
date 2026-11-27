@@ -42,7 +42,7 @@ def config_schreiben(follower, leader, name="Setup 1", kit=KIT):
     for k in [k for k in cfg if k.startswith("follower") and k != "follower"]:
         del cfg[k]                                         # ein Setup pro Team
     cfg.setdefault("cameras", [{"name": f"{name} · Arm", "device": ""}, {"name": f"{name} · Turm", "device": ""},
-                               {"name": "frei 3", "device": ""}, {"name": "frei 4", "device": ""}])
+                               {"name": "Übersicht 2 · OAK-D Lite", "device": "OAK"}, {"name": "frei 4", "device": ""}])
     _write(path, cfg)
     return path
 

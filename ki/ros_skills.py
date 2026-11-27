@@ -130,16 +130,76 @@ def build(lab):
         lab.on_ui(lambda: lab.stop(arm))
         return {"stop_angefordert": True}
 
-    @reg.skill("kamera.bild", "Aktuelles Kamerabild eines Arms als JPEG (Base64), klein.",
-               {**arm_param, "kamera": {"type": "string", "description": "z. B. arm oder turm"}}, ["arm", "kamera"])
-    def kamera_bild(arm, kamera):
+    @reg.skill("kamera.bild", "Aktuelles Kamerabild eines Arms als JPEG (Base64), klein (breite: 160-1280, Standard 480).",
+               {**arm_param, "kamera": {"type": "string", "description": "z. B. arm oder turm"},
+                "breite": {"type": "integer"}}, ["arm", "kamera"])
+    def kamera_bild(arm, kamera, breite=480):
         frames = lab.arm_frames(arm)
         img = frames.get(kamera)
         if img is None:
             raise ValueError(f"Kein aktuelles Bild von {kamera!r} (vorhanden: {list(frames)})")
         cv2 = lab.cams.cameras.cv2
-        ok, jpg = cv2.imencode(".jpg", cv2.resize(img, (480, 270)), [cv2.IMWRITE_JPEG_QUALITY, 80])
+        b = max(160, min(1280, int(breite)))
+        h = int(img.shape[0] * b / img.shape[1])
+        ok, jpg = cv2.imencode(".jpg", cv2.resize(img, (b, h)), [cv2.IMWRITE_JPEG_QUALITY, 80])
         return {"jpeg_base64": base64.b64encode(jpg.tobytes()).decode()}
+
+    def platz_kamera(platz):
+        platz = int(platz)
+        slots = lab.cams.manager.slots
+        if not 0 <= platz < len(slots):
+            raise ValueError(f"Kamera-Platz 0..{len(slots) - 1}")
+        _, cam = lab.cams.manager.status(platz)
+        return platz, cam
+
+    @reg.skill("kamera.plaetze", "Alle Kamera-Plaetze mit Name, Zustand und welchem Arm sie gehoeren (auch freie, z. B. OAK-D Lite).")
+    def kamera_plaetze():
+        arm_von = {s: k for k, p in lab.panels.items() for s in p.slots}
+        out = []
+        for i, s in enumerate(lab.cams.manager.slots):
+            text, cam = lab.cams.manager.status(i)
+            out.append({"platz": i, "name": s["name"], "zustand": text, "arm": arm_von.get(i),
+                        "oak": str(s.get("device", "")).upper().startswith("OAK"),
+                        "tiefe": hasattr(cam, "latest_depth")})
+        return out
+
+    @reg.skill("kamera.platz_bild", "Aktuelles Bild eines Kamera-Platzes (0-3) als JPEG (Base64), auch fuer freie Kameras.",
+               {"platz": {"type": "integer"}, "breite": {"type": "integer"}}, ["platz"])
+    def kamera_platz_bild(platz, breite=640):
+        import time as _t
+        platz, cam = platz_kamera(platz)
+        img, t = cam.latest() if cam is not None else (None, None)
+        if img is None or t is None or _t.monotonic() - t > 1.0:
+            raise ValueError(f"Kein aktuelles Bild von Platz {platz}")
+        cv2 = lab.cams.cameras.cv2
+        b = max(160, min(1280, int(breite)))
+        ok, jpg = cv2.imencode(".jpg", cv2.resize(img, (b, int(img.shape[0] * b / img.shape[1]))),
+                               [cv2.IMWRITE_JPEG_QUALITY, 80])
+        return {"jpeg_base64": base64.b64encode(jpg.tobytes()).decode()}
+
+    @reg.skill("kamera.tiefe", "OAK-D Lite: Entfernung in mm an einer Bildstelle (x, y als Anteil 0..1, Standard Mitte) "
+               "und optional ein eingefaerbtes Tiefenbild (bild=true).",
+               {"platz": {"type": "integer"}, "x": {"type": "number"}, "y": {"type": "number"},
+                "bild": {"type": "boolean"}}, ["platz"])
+    def kamera_tiefe(platz, x=0.5, y=0.5, bild=False):
+        platz, cam = platz_kamera(platz)
+        if not hasattr(cam, "latest_depth"):
+            raise ValueError("Dieser Platz hat keine Tiefenkamera (OAK-D Lite)")
+        d = cam.latest_depth()
+        if d is None:
+            raise ValueError("Noch kein Tiefenbild")
+        h, w = d.shape[:2]
+        px, py = min(w - 1, max(0, int(x * w))), min(h - 1, max(0, int(y * h)))
+        feld = d[max(0, py - 3):py + 4, max(0, px - 3):px + 4]
+        werte = feld[feld > 0]
+        out = {"mm": int(sorted(werte.tolist())[len(werte) // 2]) if len(werte) else None, "x": px, "y": py}
+        if bild:
+            cv2 = lab.cams.cameras.cv2
+            norm = cv2.convertScaleAbs(d, alpha=255.0 / 2000.0)        # 0-2 m auf 0-255
+            farbe = cv2.applyColorMap(norm, cv2.COLORMAP_INFERNO)
+            ok, jpg = cv2.imencode(".jpg", farbe, [cv2.IMWRITE_JPEG_QUALITY, 80])
+            out["jpeg_base64"] = base64.b64encode(jpg.tobytes()).decode()
+        return out
 
     @reg.skill("video.status", "Laeuft das Video-Streaming ins Internet? Mit Kamera-Namen und Datenrate.")
     def video_status():
@@ -159,6 +219,10 @@ def build(lab):
         if st is not None and st.running:
             lab.on_ui(lab.toggle_stream)
         return {"angefragt": True}
+
+    @reg.skill("harness.info", "Aus welchem Ordner laeuft dieser Harness? (Damit eine Oberflaeche nur ihren eigenen Harness steuert.)")
+    def harness_info():
+        return {"ordner": os.path.dirname(os.path.dirname(os.path.abspath(__file__)))}
 
     @reg.skill("arme.liste", "Alle Arme mit Anzeigename, Kameras, Zustand und Arbeitssitzung.")
     def arme():
@@ -640,5 +704,12 @@ def build(lab):
                 lab.open_voltage()
         lab.on_ui(run)
         return {"angefragt": was, "hinweis": "Bitte im Harness-Fenster weitermachen."}
+
+    # --- Weboberflaeche (Physical AI Harness): Station, Steuermodus, Fenster-Spiegel. Nur von diesem Rechner ---
+    try:
+        import webstation
+        webstation.skills_anmelden(reg, lab)
+    except Exception as exc:                     # Harness laeuft auch ohne Weboberflaeche
+        print("Web-Station-Befehle nicht verfuegbar:", exc)
 
     return reg

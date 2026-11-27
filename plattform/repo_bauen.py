@@ -26,7 +26,7 @@ CONFIG_BEISPIEL = {
     "leader": {"usb_serial": "", "port": None},
     "baud": 1000000,
     "cameras": [{"name": "Setup 1 · Arm", "device": ""}, {"name": "Setup 1 · Turm", "device": ""},
-                {"name": "frei 3", "device": ""}, {"name": "frei 4", "device": ""}],
+                {"name": "Übersicht 2 · OAK-D Lite", "device": "OAK"}, {"name": "frei 4", "device": ""}],
 }
 
 GITIGNORE = """# Lokal, nie ins Repo
@@ -78,6 +78,7 @@ if not exist .venv\Scripts\python.exe (
   %PY% -m venv .venv || (pause & exit /b 1)
   .venv\Scripts\python -m pip install --upgrade pip
   .venv\Scripts\python -m pip install -r requirements-plattform.txt || (echo Installation fehlgeschlagen & pause & exit /b 1)
+  .venv\Scripts\python -m pip install depthai || echo OAK-D-Lite-Unterstuetzung nicht installiert ^(optional^)
 )
 if not exist ki-env\Scripts\python.exe (
   echo [2/2] Richte die KI-Umgebung ein ^(LeRobot, PyTorch - gross, bitte warten^) ...
@@ -99,6 +100,7 @@ if [ ! -x .venv/bin/python ]; then
   "$PY" -m venv .venv || { read -n 1; exit 1; }
   .venv/bin/python -m pip install --upgrade pip
   .venv/bin/python -m pip install -r requirements-plattform.txt || { echo "Installation fehlgeschlagen"; read -n 1; exit 1; }
+  .venv/bin/python -m pip install depthai || echo "OAK-D-Lite-Unterstuetzung nicht installiert (optional)"
 fi
 if [ ! -x ki-env/bin/python ]; then
   echo "[2/2] Richte die KI-Umgebung ein (LeRobot, PyTorch - gross, bitte warten) ..."
@@ -284,6 +286,12 @@ def schreiben(path, text, exe=False):
         os.chmod(path, 0o755)
 
 
+CLAUDE_MD = """# Hinweise fuer KI-Assistenten
+
+Siehe [AGENTS.md](AGENTS.md). Teams arbeiten nur in `teams/<team>/` (siehe `teams/_vorlage/AGENTS.md`).
+"""
+
+
 def entpersonalisieren(ziel):
     """Eigenen Benutzerpfad (z. B. C:/Users/<name>) in Texten durch %USERPROFILE% ersetzen."""
     home = os.path.expanduser("~")
@@ -326,6 +334,7 @@ def bauen(ziel=ZIEL):
     schreiben(os.path.join(ziel, "config.example.json"), json.dumps(CONFIG_BEISPIEL, indent=1, ensure_ascii=False))
     schreiben(os.path.join(ziel, "README.md"), README)
     schreiben(os.path.join(ziel, "VERANSTALTER.md"), ADMIN)
+    schreiben(os.path.join(ziel, "CLAUDE.md"), CLAUDE_MD)
     schreiben(os.path.join(ziel, ".gitignore"), GITIGNORE)
     schreiben(os.path.join(ziel, "requirements-plattform.txt"), REQ_PLATTFORM)
     schreiben(os.path.join(ziel, "Start Windows.cmd"), START_WIN)
