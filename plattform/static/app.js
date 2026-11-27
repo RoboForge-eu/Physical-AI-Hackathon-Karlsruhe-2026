@@ -146,6 +146,7 @@ function zeichneHarness() {
   const st = $("#harness-status");
   if (h.verbunden) {
     st.className = "hinweis"; st.innerHTML = `<span class="punkt an"></span> Harness verbunden · ${h.arme.length} Arm(e)`;
+    if (!Station.z) Station.laden();
     const arm = (h.arme[0] || {}).arm;
     if (arm && (!steuer || steuer.arm !== arm)) {
       if (steuer) steuer.stop();

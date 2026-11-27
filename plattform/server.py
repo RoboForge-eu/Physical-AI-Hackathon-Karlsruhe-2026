@@ -245,6 +245,8 @@ class App:
 
 
 APP = None
+ARBEIT_SKILLS = {"station.oeffnen", "station.uebernehmen", "station.assistent", "station.quelle", "station.neustart",
+                 "station.video", "steuer.aufnahme", "steuer.plan", "steuer.startpose", "ki.modell_waehlen"}
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -388,7 +390,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, APP.harness.starten())
             if p == "/api/skill":
                 res = APP.harness.call(str(b["name"]), b.get("args") or {}, timeout=b.get("timeout") or 60)
-                if str(b["name"]).startswith("station."):
+                if str(b["name"]) in ARBEIT_SKILLS:          # nur echte Aktionen merken, nicht das Abfragen
                     APP.zustand.arbeit(b.get("abschnitt") or "harness", f"{b['name']} {b.get('args', {}).get('was', '')}")
                 return self._send(200, {"ok": True, "ergebnis": res})
             if p == "/api/training/start":
