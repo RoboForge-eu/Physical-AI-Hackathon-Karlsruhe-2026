@@ -1,0 +1,33 @@
+# Ordner-Waechter: uebernimmt aus jedem Team-Zweig (team/<name>) NUR den Ordner teams/<name>/ nach main.
+# Laeuft zeitgesteuert vom Hauptzweig aus - Aenderungen der Teams an diesem Workflow wirken also nie.
+name: Ordner-Waechter
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ordner-waechter
+  cancel-in-progress: false
+jobs:
+  uebernehmen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          ssh-key: ${{ secrets.WAECHTER_DEPLOY_KEY }}
+      - name: Team-Ordner uebernehmen
+        run: python3 .github/waechter.py
+      - name: Nach main schieben
+        run: |
+          git config user.name "Ordner-Waechter"
+          git config user.email "waechter@hackathon.roboforge.eu"
+          if ! git diff --cached --quiet; then
+            git commit -m "Waechter: Team-Ordner aktualisiert"
+            git push origin HEAD:main
+          else
+            echo "Nichts Neues."
+          fi

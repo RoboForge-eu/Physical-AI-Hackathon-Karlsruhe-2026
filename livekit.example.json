@@ -1,0 +1,10 @@
+{
+  "url": "wss://<dein-projekt>.livekit.cloud",
+  "api_key": "<API Key aus LiveKit Cloud: Settings -> Keys>",
+  "api_secret": "<API Secret, nur hier lokal eintragen, nirgends sonst>",
+  "room": "roboforge",
+  "width": 640,
+  "height": 360,
+  "fps": 15,
+  "max_kbps": 700
+}

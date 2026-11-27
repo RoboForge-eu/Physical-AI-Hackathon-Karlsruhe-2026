@@ -1,0 +1,27 @@
+{
+ "stl": "SO-ARM101_camera_wrist_mount_mod.stl",
+ "einheit": "mm",
+ "beschreibung": "offizielle Anschraubstelle (2 Loecher + Zapfen an der Seite des Greifers), um die Schraubachse gedreht: Blech nach hinten-aussen, Kameraplatte steht von der Seite weg, Kamera schaut nach vorn (Foto 16.11. 17:42, Bilder 17:59)",
+ "xyz": [
+  -0.016,
+  0.024,
+  -0.0306
+ ],
+ "rpy": [
+  -1.6511,
+  -0.0008,
+  -1.5708
+ ],
+ "kamera": {
+  "linse_mm": [
+   14,
+   25
+  ],
+  "platine_mm": [
+   32,
+   32,
+   2.5
+  ],
+  "platte_mm": 3.0
+ }
+}

@@ -1,0 +1,8 @@
+# Physical AI Harness: Oberflaeche + Harness (Arm, Kameras). Python 3.12.
+pyserial>=3.5
+websockets>=13
+opencv-python>=4.9
+numpy>=1.26
+psutil>=5.9
+pillow>=10
+scipy>=1.11

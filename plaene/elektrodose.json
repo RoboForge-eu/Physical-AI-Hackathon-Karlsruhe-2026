@@ -1,0 +1,488 @@
+{
+ "id": "elektrodose",
+ "name": "Beispiel: Elektrodose anheben",
+ "beschreibung": "Einfacher Einstieg: eine orange Elektrodose (Hohlwanddose) steht an wechselnden Stellen im Halbring vor dem Arm. Der Arm faehrt hin, greift sie und hebt sie an. 50 Runden = 50 Episoden, genug fuer ein erstes ACT-Modell.",
+ "version": 1,
+ "seed": 2811,
+ "datensatz": "elektrodose",
+ "methode": "act",
+ "objekt": {
+  "name": "Elektrodose",
+  "artikel": "die",
+  "bereit": "Dose steht bereit",
+  "hinlegen": "Dose wie auf der Karte hinstellen.",
+  "form": "rund"
+ },
+ "kameras": {
+  "wrist": "arm",
+  "overview": "turm"
+ },
+ "haupt_kamera": "wrist",
+ "geometrie": {
+  "r_innen": 16,
+  "r_aussen": 38,
+  "laenge": 7,
+  "breite": 7,
+  "rand": 1,
+  "rand_laengs": 0,
+  "tisch_breite": 100,
+  "tisch_tiefe": 50
+ },
+ "bauteile": {
+  "D": {
+   "name": "Orange Elektrodose",
+   "kurz": "Dose",
+   "plural": "Dosen",
+   "allgemein": "Pick up the orange junction box",
+   "spezifisch": "Pick up the orange junction box"
+  }
+ },
+ "ladungen": {
+  "L1": {
+   "D": 1
+  }
+ },
+ "anordnungen": {
+  "T": {
+   "name": "auf dem Tisch",
+   "beschreibung": "Dose aufrecht direkt auf den Tisch stellen, Oeffnung nach oben."
+  }
+ },
+ "tests": [
+  {
+   "id": "T1",
+   "ausrichtung": "quer",
+   "lage": "mitte",
+   "hinweis": "mittig im Halbring"
+  },
+  {
+   "id": "T2",
+   "ausrichtung": "schraeg",
+   "lage": "rand",
+   "hinweis": "am Rand des erlaubten Bereichs"
+  }
+ ],
+ "spezifisch_anteil": 0.0,
+ "lage_woerter": [
+  [
+   "back left",
+   "back",
+   "back right"
+  ],
+  [
+   "left",
+   "middle",
+   "right"
+  ],
+  [
+   "front left",
+   "front",
+   "front right"
+  ]
+ ],
+ "automatik": {
+  "an": false
+ },
+ "runden": [
+  [
+   1,
+   1,
+   "P01",
+   "quer",
+   "L1",
+   "T"
+  ],
+  [
+   2,
+   1,
+   "P02",
+   "schraeg",
+   "L1",
+   "T"
+  ],
+  [
+   3,
+   1,
+   "P03",
+   "quer",
+   "L1",
+   "T"
+  ],
+  [
+   4,
+   1,
+   "P04",
+   "schraeg",
+   "L1",
+   "T"
+  ],
+  [
+   5,
+   1,
+   "P05",
+   "laengs",
+   "L1",
+   "T"
+  ],
+  [
+   6,
+   1,
+   "P06",
+   "quer",
+   "L1",
+   "T"
+  ],
+  [
+   7,
+   1,
+   "P07",
+   "schraeg",
+   "L1",
+   "T"
+  ],
+  [
+   8,
+   1,
+   "P08",
+   "quer",
+   "L1",
+   "T"
+  ],
+  [
+   9,
+   1,
+   "P09",
+   "schraeg",
+   "L1",
+   "T"
+  ],
+  [
+   10,
+   1,
+   "P10",
+   "laengs",
+   "L1",
+   "T"
+  ],
+  [
+   11,
+   1,
+   "P11",
+   "quer",
+   "L1",
+   "T"
+  ],
+  [
+   12,
+   1,
+   "P12",
+   "schraeg",
+   "L1",
+   "T"
+  ],
+  [
+   13,
+   1,
+   "P13",
+   "quer",
+   "L1",
+   "T"
+  ],
+  [
+   14,
+   1,
+   "P14",
+   "schraeg",
+   "L1",
+   "T"
+  ],
+  [
+   15,
+   1,
+   "P15",
+   "laengs",
+   "L1",
+   "T"
+  ],
+  [
+   16,
+   1,
+   "P16",
+   "quer",
+   "L1",
+   "T"
+  ],
+  [
+   17,
+   1,
+   "P17",
+   "schraeg",
+   "L1",
+   "T"
+  ],
+  [
+   18,
+   1,
+   "P18",
+   "quer",
+   "L1",
+   "T"
+  ],
+  [
+   19,
+   1,
+   "P19",
+   "schraeg",
+   "L1",
+   "T"
+  ],
+  [
+   20,
+   1,
+   "P20",
+   "laengs",
+   "L1",
+   "T"
+  ],
+  [
+   21,
+   1,
+   "P21",
+   "quer",
+   "L1",
+   "T"
+  ],
+  [
+   22,
+   1,
+   "P22",
+   "schraeg",
+   "L1",
+   "T"
+  ],
+  [
+   23,
+   1,
+   "P23",
+   "quer",
+   "L1",
+   "T"
+  ],
+  [
+   24,
+   1,
+   "P24",
+   "schraeg",
+   "L1",
+   "T"
+  ],
+  [
+   25,
+   1,
+   "P25",
+   "laengs",
+   "L1",
+   "T"
+  ],
+  [
+   26,
+   2,
+   "P26",
+   "quer",
+   "L1",
+   "T"
+  ],
+  [
+   27,
+   2,
+   "P27",
+   "schraeg",
+   "L1",
+   "T"
+  ],
+  [
+   28,
+   2,
+   "P28",
+   "quer",
+   "L1",
+   "T"
+  ],
+  [
+   29,
+   2,
+   "P29",
+   "schraeg",
+   "L1",
+   "T"
+  ],
+  [
+   30,
+   2,
+   "P30",
+   "laengs",
+   "L1",
+   "T"
+  ],
+  [
+   31,
+   2,
+   "P31",
+   "quer",
+   "L1",
+   "T"
+  ],
+  [
+   32,
+   2,
+   "P32",
+   "schraeg",
+   "L1",
+   "T"
+  ],
+  [
+   33,
+   2,
+   "P33",
+   "quer",
+   "L1",
+   "T"
+  ],
+  [
+   34,
+   2,
+   "P34",
+   "schraeg",
+   "L1",
+   "T"
+  ],
+  [
+   35,
+   2,
+   "P35",
+   "laengs",
+   "L1",
+   "T"
+  ],
+  [
+   36,
+   2,
+   "P36",
+   "quer",
+   "L1",
+   "T"
+  ],
+  [
+   37,
+   2,
+   "P37",
+   "schraeg",
+   "L1",
+   "T"
+  ],
+  [
+   38,
+   2,
+   "P38",
+   "quer",
+   "L1",
+   "T"
+  ],
+  [
+   39,
+   2,
+   "P39",
+   "schraeg",
+   "L1",
+   "T"
+  ],
+  [
+   40,
+   2,
+   "P40",
+   "laengs",
+   "L1",
+   "T"
+  ],
+  [
+   41,
+   2,
+   "P41",
+   "quer",
+   "L1",
+   "T"
+  ],
+  [
+   42,
+   2,
+   "P42",
+   "schraeg",
+   "L1",
+   "T"
+  ],
+  [
+   43,
+   2,
+   "P43",
+   "quer",
+   "L1",
+   "T"
+  ],
+  [
+   44,
+   2,
+   "P44",
+   "schraeg",
+   "L1",
+   "T"
+  ],
+  [
+   45,
+   2,
+   "P45",
+   "laengs",
+   "L1",
+   "T"
+  ],
+  [
+   46,
+   2,
+   "P46",
+   "quer",
+   "L1",
+   "T"
+  ],
+  [
+   47,
+   2,
+   "P47",
+   "schraeg",
+   "L1",
+   "T"
+  ],
+  [
+   48,
+   2,
+   "P48",
+   "quer",
+   "L1",
+   "T"
+  ],
+  [
+   49,
+   2,
+   "P49",
+   "schraeg",
+   "L1",
+   "T"
+  ],
+  [
+   50,
+   2,
+   "P50",
+   "laengs",
+   "L1",
+   "T"
+  ]
+ ]
+}

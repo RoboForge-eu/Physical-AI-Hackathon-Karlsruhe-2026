@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RoboForge Kameras</title>
+<style>
+  :root { --bg: #f4f4f2; --fg: #1d1d1b; --muted: #6b6b66; --tile: #111; --ok: #1f7a3a; --bad: #b3261e; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #161615; --fg: #ececea; --muted: #9a9a94; } }
+  :root[data-theme="dark"] { --bg: #161615; --fg: #ececea; --muted: #9a9a94; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 16px; background: var(--bg); color: var(--fg); font: 15px/1.4 "Segoe UI", system-ui, sans-serif; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  #status { color: var(--muted); margin-bottom: 12px; }
+  #status.ok { color: var(--ok); } #status.bad { color: var(--bad); }
+  #grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+  figure { margin: 0; }
+  figcaption { font-weight: 600; margin-bottom: 4px; display: flex; justify-content: space-between; gap: 8px; }
+  figcaption span { font-weight: 400; color: var(--muted); font-size: 13px; }
+  video { width: 100%; aspect-ratio: 16 / 9; background: var(--tile); border-radius: 6px; display: block; }
+</style>
+</head>
+<body>
+<h1>RoboForge · Kameras</h1>
+<div id="status">verbinde ...</div>
+<div id="grid"></div>
+<script src="https://cdn.jsdelivr.net/npm/livekit-client@2.9.1/dist/livekit-client.umd.js"></script>
+<script>
+  // Adresse und Nur-Ansehen-Token kommen aus dem #-Teil der Adresse (wird nie an einen Server gesendet).
+  const params = new URLSearchParams(location.hash.slice(1));
+  const statusEl = document.getElementById("status");
+  const grid = document.getElementById("grid");
+  const tiles = new Map();
+  function setStatus(text, cls) { statusEl.textContent = text; statusEl.className = cls || ""; }
+
+  function tileFor(name) {
+    if (!tiles.has(name)) {
+      const fig = document.createElement("figure");
+      const cap = document.createElement("figcaption");
+      const title = document.createElement("b"); title.textContent = name;
+      const info = document.createElement("span"); info.textContent = "wartet";
+      cap.append(title, info);
+      const video = document.createElement("video");
+      video.autoplay = true; video.muted = true; video.playsInline = true;
+      fig.append(cap, video);
+      // feste Reihenfolge nach Name (Setup 1 · Arm, Setup 1 · Turm, ...)
+      const after = [...grid.children].find(c => c.dataset.name > name);
+      fig.dataset.name = name;
+      grid.insertBefore(fig, after || null);
+      tiles.set(name, { fig, video, info, track: null });
+    }
+    return tiles.get(name);
+  }
+
+  async function main() {
+    const url = params.get("url"), token = params.get("token");
+    if (!url || !token) { setStatus("Kein Zugang in der Adresse. Link aus dem Testfenster verwenden.", "bad"); return; }
+    const LK = window.LivekitClient;
+    const room = new LK.Room({ adaptiveStream: true });
+    room.on(LK.RoomEvent.TrackSubscribed, (track, pub) => {
+      if (track.kind !== "video") return;
+      const t = tileFor(pub.trackName || track.sid);
+      track.attach(t.video); t.track = track; t.info.textContent = "live";
+    });
+    room.on(LK.RoomEvent.TrackUnsubscribed, (track, pub) => {
+      const t = tiles.get(pub.trackName); if (t) { track.detach(t.video); t.track = null; t.info.textContent = "getrennt"; }
+    });
+    room.on(LK.RoomEvent.Disconnected, () => setStatus("Verbindung getrennt", "bad"));
+    room.on(LK.RoomEvent.Reconnecting, () => setStatus("Verbindung wird wiederhergestellt ...", ""));
+    room.on(LK.RoomEvent.Reconnected, () => setStatus("verbunden", "ok"));
+    try {
+      await room.connect(url, token);
+      setStatus(`verbunden mit Raum „${room.name}“`, "ok");
+    } catch (e) { setStatus("Verbindung fehlgeschlagen: " + e.message, "bad"); return; }
+    // Empfangsrate je Spur (Download beim Zuschauer)
+    const last = new Map();
+    setInterval(async () => {
+      for (const [name, t] of tiles) {
+        if (!t.track || !t.track.getRTCStatsReport) continue;
+        const report = await t.track.getRTCStatsReport();
+        if (!report) continue;
+        report.forEach(s => {
+          if (s.type !== "inbound-rtp" || s.kind !== "video") return;
+          const prev = last.get(name);
+          if (prev) {
+            const kbps = (s.bytesReceived - prev.bytes) * 8 / (s.timestamp - prev.ts);
+            t.info.textContent = `${Math.round(s.framesPerSecond || 0)} fps · ${Math.round(kbps)} kbit/s · ${s.frameWidth || "?"}×${s.frameHeight || "?"}`;
+          }
+          last.set(name, { bytes: s.bytesReceived, ts: s.timestamp });
+        });
+      }
+    }, 2000);
+  }
+  main();
+</script>
+</body>
+</html>

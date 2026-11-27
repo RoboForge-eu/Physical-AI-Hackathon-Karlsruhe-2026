@@ -1,0 +1,6 @@
+# Nur fuer den Bediener-Rechner (Windows oder macOS) mit der App "RoboForge Fernsteuerung".
+# Installation:  python -m pip install -r requirements-fernsteuerung.txt
+livekit>=1.2
+numpy
+opencv-python
+pyserial>=3.5

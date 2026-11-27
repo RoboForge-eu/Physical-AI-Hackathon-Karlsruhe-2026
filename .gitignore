@@ -1,0 +1,26 @@
+# Lokal, nie ins Repo
+.venv/
+ki-env/
+__pycache__/
+*.pyc
+plattform_daten/
+stationspakete/
+ki_daten/
+calibration/
+config.json
+logs/
+*.log
+livekit.json
+agent.json
+fernzugriff.json
+build/
+dist/
+.DS_Store
+# Modelle und Datensaetze gehoeren auf Hugging Face (Knopf "Modell veroeffentlichen")
+*.safetensors
+*.pt
+*.pth
+*.bin
+*.ckpt
+*.mp4
+*.npz

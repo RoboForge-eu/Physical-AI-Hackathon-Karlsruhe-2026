@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Physical AI Harness</title>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<header class="kopf">
+  <div class="marke" title="RoboForge">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#e8b230" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 20h16M7 20v-3h10v3M9 17l1-5h4l1 5M10 12 6 8M6 8l3-3M14 12l3-6"/></svg>
+  </div>
+  <div class="titel"><small>RoboForge</small><b>Physical AI Harness</b></div>
+  <div class="phase-pille" id="phase-pille" title="Hackathon-Plan"></div>
+  <div class="luecke"></div>
+  <button class="icon-knopf" id="glocke" title="Hackathon-Plan und Erinnerungen">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+    <span class="zahl" id="glocke-zahl"></span></button>
+  <button class="profil-knopf" id="profil" title="Team-Profil"><span class="avatar" id="avatar">?</span><span id="profil-name">Anmelden</span></button>
+  <button class="stop-knopf" id="stop" title="Alle Arme sofort stoppen und ablegen">STOP</button>
+</header>
+
+<div class="panel" id="panel-plan">
+  <div class="pkopf" id="plan-titel">Hackathon-Plan</div>
+  <div class="pinhalt">
+    <div id="plan-erinnerungen"></div>
+    <ul class="zeitplan" id="plan-liste"></ul>
+    <p class="leise klein" style="margin-top:10px">Zeiten in <code>plattform/hackathon_plan.json</code>.</p>
+  </div>
+</div>
+
+<div class="panel" id="panel-profil">
+  <div class="pkopf">Team</div>
+  <div class="pinhalt" id="profil-inhalt"></div>
+</div>
+
+<nav class="wege" id="wege">
+  <ol>
+    <li><a href="#start" data-ab="start" title="Start"><span class="nr">0</span>Start</a></li>
+    <li><a href="#harness" data-ab="harness" title="Roboter einrichten"><span class="nr">1</span>Roboter</a></li>
+    <li><a href="#aufnehmen" data-ab="aufnehmen" title="Daten aufnehmen"><span class="nr">2</span>Daten</a></li>
+    <li><a href="#trainieren" data-ab="trainieren" title="VLA trainieren"><span class="nr">3</span>Training</a></li>
+    <li><a href="#orchestrator" data-ab="orchestrator" title="Orchestrator &amp; Skills"><span class="nr">4</span>Orchestr.</a></li>
+    <li><a href="#interface" data-ab="interface" title="Euer Interface"><span class="nr">5</span>Interface</a></li>
+    <li><a href="#teilen" data-ab="teilen" title="Teilen"><span class="nr">6</span>Teilen</a></li>
+    <li><a href="#vorstellen" data-ab="vorstellen" title="Vorstellen"><span class="nr">7</span>Demo</a></li>
+  </ol>
+  <div class="zuletzt" id="zuletzt"></div>
+</nav>
+
+<div class="rahmen">
+  <main>
+    <!-- 0 START -->
+    <section id="start">
+      <div class="abschnitt-kopf"><span class="nr">0</span><h2>Start</h2></div>
+      <div class="abschnitt-inhalt">
+        <p class="einleitung" id="aufgabe-text"></p>
+        <div class="raster">
+          <div class="karte akzent"><div class="kkopf"><b>Team</b></div><div class="kinhalt" id="login-bereich"></div></div>
+          <div class="karte"><div class="kkopf"><b>Ablauf</b></div><div class="kinhalt">
+            <ol class="schritte">
+              <li><b>Roboter einrichten:</b> Arm prüfen, Kameras, Leader steuert Follower.</li>
+              <li><b>Daten aufnehmen:</b> mit dem Aufnahmeplan vormachen.</li>
+              <li><b>VLA trainieren:</b> auf diesem Rechner rechnen lassen.</li>
+              <li><b>Orchestrator bauen:</b> VLA, Code-Skills und Kameraprüfung verbinden.</li>
+              <li><b>Interface und Demo:</b> eure Oberfläche, teilen, vorstellen.</li>
+            </ol></div></div>
+          <div class="karte"><div class="kkopf"><b>Dieser Rechner</b></div><div class="kinhalt" id="geraet-info"><span class="leise">wird ermittelt ...</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1 HARNESS -->
+    <section id="harness">
+      <div class="abschnitt-kopf"><span class="nr">1</span><h2>Roboter einrichten</h2></div>
+      <div class="abschnitt-inhalt">
+        <p class="einleitung">Der <b>Harness</b> steuert Arm, Kameras und Sicherheit. Jede Bewegung bestätigt ein Mensch vor Ort im
+          Harness-Fenster. Nie 12 V an die Arme anschließen.</p>
+        <div id="harness-status" class="hinweis"></div>
+        <div class="zeile" style="margin-bottom:10px">
+          <button onclick="station('kameras')">Kameras zuordnen</button>
+          <button onclick="station('harness')" title="Im Harness-Fenster bei jeder Kamera 'Schärfe prüfen'">Schärfe prüfen</button>
+          <button onclick="station('kalibrieren')">Arm kalibrieren</button>
+          <button onclick="station('spannung')">Spannung messen</button>
+        </div>
+        <div id="arme"></div>
+      </div>
+    </section>
+
+    <!-- 2 AUFNEHMEN -->
+    <section id="aufnehmen">
+      <div class="abschnitt-kopf"><span class="nr">2</span><h2>Daten aufnehmen</h2></div>
+      <div class="abschnitt-inhalt">
+        <p class="einleitung">Ein VLA lernt durch <b>Vormachen</b>. Der Aufnahmeplan sagt für jede Runde, <b>wo</b> der Gegenstand
+          stehen soll. So lernt das Modell viele verschiedene Lagen statt immer derselben Bewegung.</p>
+        <div class="raster" style="grid-template-columns: minmax(340px, 1.4fr) minmax(300px, 1fr);">
+          <div class="karte"><div class="kkopf"><b>Plan</b><span style="flex:1"></span><select id="plan-wahl" style="height:24px"></select></div>
+            <div class="kinhalt" id="plan-karte"></div></div>
+          <div style="display:grid;gap:10px;align-content:start">
+            <div class="karte akzent"><div class="kkopf"><b>So nimmst du auf</b></div><div class="kinhalt">
+              <ol class="schritte">
+                <li>Gegenstand genau dort hinstellen, wo die Karte die <b>gelbe Markierung</b> zeigt.</li>
+                <li>Im Steuermodus <b>Aufnahme starten</b> und mit dem Leader vormachen: hinfahren, greifen, anheben.</li>
+                <li>Kurz still halten, dann <b>Stop</b>. Gut? <b>Behalten</b>, sonst <b>Verwerfen</b>.</li>
+                <li>Nächste Runde: Gegenstand an die neue Stelle. Ziel: 40-50 Episoden.</li>
+              </ol>
+              <div class="zeile"><select id="aufnahme-arm"></select>
+                <button class="haupt" onclick="station('steuermodus', $('#aufnahme-arm').value, 'aufnehmen')">Im Steuermodus aufnehmen</button></div>
+            </div></div>
+            <div class="karte"><div class="kkopf"><b>Datensätze</b></div><div id="datensaetze"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 TRAINIEREN -->
+    <section id="trainieren">
+      <div class="abschnitt-kopf"><span class="nr">3</span><h2>VLA trainieren</h2></div>
+      <div class="abschnitt-inhalt">
+        <p class="einleitung"><b>ACT</b> lernt genau eine Aufgabe, ist klein und schnell trainiert. <b>SmolVLA</b> versteht Sätze und
+          kann mehrere Aufgaben, braucht aber eine NVIDIA-Grafikkarte. Das Training läuft im Hintergrund weiter, auch wenn diese Seite zu ist.</p>
+        <div id="geraet-hinweis" class="hinweis"></div>
+        <div class="karte"><div class="kkopf"><b>Neues Training</b></div><div class="kinhalt">
+          <div class="zeile" style="align-items:flex-end">
+            <label class="feld">Datensatz <select id="tr-datensatz"></select></label>
+            <label class="feld">Methode <select id="tr-methode"></select></label>
+            <label class="feld">Schritte <input id="tr-schritte" type="number" min="500" step="500" style="width:100px"></label>
+            <button class="haupt" id="tr-start">Training starten</button>
+          </div>
+          <p class="leise klein" id="tr-hinweis" style="margin:8px 0 0"></p>
+        </div></div>
+        <div class="karte" style="margin-top:10px"><div class="kkopf"><b>Trainings</b></div><div id="trainings"></div></div>
+        <div class="karte" style="margin-top:10px"><div class="kkopf"><b>Fertige Modelle</b></div><div id="modelle"></div></div>
+      </div>
+    </section>
+
+    <!-- 4 ORCHESTRATOR -->
+    <section id="orchestrator">
+      <div class="abschnitt-kopf"><span class="nr">4</span><h2>Orchestrator &amp; Agentic Skills</h2></div>
+      <div class="abschnitt-inhalt">
+        <p class="einleitung">Der <b>Orchestrator</b> verbindet die Bausteine zu einem Ablauf: VLA-Skills (gelernt), Code-Skills (von
+          eurem Coding-Agent geschrieben) und Bildverarbeitung (prüfen per Kamera). Am bequemsten öffnet ihr den Team-Ordner
+          in eurem Editor mit Coding-Agent; <code>AGENTS.md</code> erklärt ihm alles.</p>
+        <div class="hinweis" id="team-ordner-hinweis"></div>
+        <div class="editor">
+          <div>
+            <div class="dateiliste" id="dateiliste"></div>
+            <div class="zeile" style="margin-top:6px"><button onclick="neueDatei()">Neue Datei</button><button onclick="ladeOrch()">Aktualisieren</button></div>
+          </div>
+          <div class="karte"><div class="kkopf"><b id="datei-name">-</b><span style="flex:1"></span>
+              <button class="haupt" style="height:22px" onclick="speichern()">Speichern</button></div>
+            <textarea class="code" id="datei-inhalt" spellcheck="false" placeholder="Datei links wählen" style="border:0;border-radius:0"></textarea></div>
+        </div>
+        <div class="karte" style="margin-top:10px"><div class="kkopf"><b>Ausführen</b><span id="orch-status" class="marke-klein">aus</span>
+            <span style="flex:1"></span>
+            <button class="haupt" style="height:22px" onclick="orch('start')">orchestrator.py starten</button>
+            <button class="gefahr" style="height:22px" onclick="orch('stop')">Beenden</button></div>
+          <div class="kinhalt"><pre class="log" id="orch-log" style="margin:0">Noch keine Ausgabe.</pre></div></div>
+        <details style="margin-top:8px"><summary>Alle Skills des Harness (das kann euer Orchestrator aufrufen)</summary>
+          <div id="skill-liste" class="karte"></div></details>
+      </div>
+    </section>
+
+    <!-- 5 INTERFACE -->
+    <section id="interface">
+      <div class="abschnitt-kopf"><span class="nr">5</span><h2>Euer Interface</h2><span style="flex:1"></span>
+        <button style="height:24px" onclick="$('#team-ui').src='/team-ui/?t='+Date.now()">Neu laden</button>
+        <a class="knopf" style="height:24px" href="/team-ui/" target="_blank">Eigenes Fenster</a></div>
+      <div class="abschnitt-inhalt">
+        <p class="einleitung">Hier erscheint eure eigene Oberfläche: <code>ui/index.html</code> im Team-Ordner. Sie ruft den Harness
+          über <code>/api/skill</code> auf; Bewegungen bestätigt weiter ein Mensch vor Ort.</p>
+        <iframe class="team-ui" id="team-ui" src="about:blank" title="Team-Interface"></iframe>
+      </div>
+    </section>
+
+    <!-- 6 TEILEN -->
+    <section id="teilen">
+      <div class="abschnitt-kopf"><span class="nr">6</span><h2>Teilen</h2></div>
+      <div class="abschnitt-inhalt">
+        <p class="einleitung"><b>Code</b> kommt auf GitHub (nur euer Team-Ordner), <b>Modelle und Datensätze</b> auf Hugging Face.
+          Die Zugänge stecken im Team-Paket, ihr müsst euch nirgends anmelden.</p>
+        <div class="raster">
+          <div class="karte"><div class="kkopf"><b>Code</b><span class="leise">GitHub</span></div><div class="kinhalt">
+            <div id="git-info" class="klein leise" style="margin-bottom:8px"></div>
+            <div class="zeile"><input id="git-nachricht" placeholder="Was habt ihr geändert?" style="flex:1"></div>
+            <div class="zeile"><button class="haupt" onclick="teilen('code')">Team-Ordner hochladen</button>
+              <button onclick="teilen('holen')">Änderungen der Kollegen holen</button></div>
+            <pre class="log" id="log-code" hidden></pre>
+          </div></div>
+          <div class="karte"><div class="kkopf"><b>Modell</b><span class="leise">Hugging Face</span></div><div class="kinhalt">
+            <div class="zeile"><select id="hf-modell" style="flex:1"></select></div>
+            <div class="zeile"><label class="klein"><input type="checkbox" id="hf-datensatz" checked> Datensatz mit hochladen</label></div>
+            <div class="zeile"><button class="haupt" onclick="teilen('modell')">Modell veröffentlichen</button></div>
+            <div id="hf-ziel" class="klein leise" style="margin-top:6px"></div>
+            <pre class="log" id="log-modell" hidden></pre>
+          </div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 VORSTELLEN -->
+    <section id="vorstellen">
+      <div class="abschnitt-kopf"><span class="nr">7</span><h2>Vorstellen</h2><span style="flex:1"></span>
+        <button class="haupt" style="height:24px" id="praes-knopf" onclick="praesentation()">Präsentationsmodus</button></div>
+      <div class="abschnitt-inhalt">
+        <div class="buehne">
+          <div class="gelb-text">Physical AI Hackathon Karlsruhe</div>
+          <h2 id="v-team">Euer Team</h2>
+          <div class="zahlen" id="v-zahlen"></div>
+          <div class="vortrag" id="v-text"></div>
+        </div>
+        <details style="margin-top:8px"><summary>Text bearbeiten (vorstellung.md im Team-Ordner)</summary>
+          <textarea class="code" id="v-edit" style="min-height:200px;white-space:pre-wrap"></textarea>
+          <div class="zeile" style="margin-top:6px"><button class="haupt" onclick="vorstellungSpeichern()">Speichern</button></div>
+        </details>
+      </div>
+    </section>
+  </main>
+</div>
+<div id="toast"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>

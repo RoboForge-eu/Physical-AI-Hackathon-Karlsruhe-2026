@@ -1,0 +1,34 @@
+{
+ "titel": "Physical AI Hackathon Karlsruhe",
+ "datum": "2026-11-28",
+ "ort": "Student Innovation Lab",
+ "aufgabe": "Ein SO-101-Arm legt drei Bauteile in die richtigen Fächer und prüft das Ergebnis per Kamera. Liegt die Montageplatte schräg oder ist ein Fach belegt, erkennt der Ablauf den Fehler, korrigiert ihn oder stoppt begründet.",
+ "phasen": [
+  {"start": "09:30", "ende": "10:00", "titel": "Einführung und Demo", "abschnitt": "start",
+   "text": "Vorstellung der Plattform, Beispiel Elektrodose: so nimmt man Daten auf und trainiert ein VLA."},
+  {"start": "10:00", "ende": "10:30", "titel": "Station einrichten", "abschnitt": "harness",
+   "text": "Anmelden, Arm prüfen, Kameras scharf stellen, Leader steuert Follower testen."},
+  {"start": "10:30", "ende": "11:30", "titel": "Daten aufnehmen", "abschnitt": "aufnehmen",
+   "text": "Mit dem Aufnahmeplan vormachen (Beispiel Elektrodose oder eigene Aufgabe). Ziel: 40-50 gute Episoden."},
+  {"start": "11:30", "ende": "11:45", "titel": "Training 1 starten", "abschnitt": "trainieren",
+   "text": "Spätestens jetzt das erste Training starten (ACT, 1-3 Stunden). Währenddessen weiterbauen."},
+  {"start": "11:45", "ende": "14:30", "titel": "Orchestrator und Skills bauen", "abschnitt": "orchestrator",
+   "text": "Ablauf planen, Code-Skills mit dem Coding-Agent schreiben, Kameraprüfung bauen. Ab ca. 13:30 Modell 1 testen."},
+  {"start": "14:30", "ende": "14:45", "titel": "Training 2 starten", "abschnitt": "trainieren",
+   "text": "Letzter sinnvoller Start für ein besseres Modell (mehr/bessere Daten). Danach reicht die Zeit nicht mehr."},
+  {"start": "14:45", "ende": "17:30", "titel": "Interface bauen und alles verbinden", "abschnitt": "interface",
+   "text": "Eigene Oberfläche in der App, Fehlerfälle (schräge Platte, belegtes Fach) abfangen, Ablauf am echten Arm testen."},
+  {"start": "17:30", "ende": "18:30", "titel": "Teilen und Demo vorbereiten", "abschnitt": "teilen",
+   "text": "Code, Modell und Datensatz teilen. Vorstellungsseite ausfüllen, Demo einmal durchspielen."},
+  {"start": "18:30", "ende": "19:30", "titel": "Demos", "abschnitt": "vorstellen",
+   "text": "Jedes Team zeigt seine Lösung am echten Arm (ca. 8 Minuten)."}
+ ],
+ "erinnerungen": [
+  {"zeit": "11:15", "text": "In 15 Minuten das erste Training starten. Sind genug Episoden aufgenommen?", "abschnitt": "trainieren"},
+  {"zeit": "11:30", "text": "Jetzt das erste Training starten (ACT).", "abschnitt": "trainieren"},
+  {"zeit": "14:15", "text": "In 15 Minuten: letzte Chance für Training 2.", "abschnitt": "trainieren"},
+  {"zeit": "14:30", "text": "Training 2 jetzt starten, später reicht die Zeit nicht mehr.", "abschnitt": "trainieren"},
+  {"zeit": "17:30", "text": "Zeit zum Teilen: Code, Modell und Datensatz hochladen.", "abschnitt": "teilen"},
+  {"zeit": "18:15", "text": "In 15 Minuten beginnen die Demos.", "abschnitt": "vorstellen"}
+ ]
+}

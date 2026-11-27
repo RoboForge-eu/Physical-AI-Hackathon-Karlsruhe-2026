@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Team-Interface</title>
+<style>
+  body { font: 15px/1.5 system-ui, sans-serif; margin: 0; padding: 20px; background: #fbf9f4; color: #1b2540; }
+  h1 { color: #1f3b73; margin-top: 0; }
+  button { font: inherit; font-weight: 700; padding: 10px 18px; border-radius: 8px; border: 2px solid #1f3b73;
+           background: #1f3b73; color: #fff; cursor: pointer; }
+  pre { background: #0d1630; color: #dfe6f5; padding: 12px; border-radius: 8px; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<h1>Unser Interface</h1>
+<p>Beispiel: Diese Seite liegt in <code>ui/index.html</code> eures Team-Ordners. Baut hier eure eigene Bedienung.</p>
+<button onclick="skill('arme.liste')">Arme anzeigen</button>
+<button onclick="skill('modelle.liste')">Modelle anzeigen</button>
+<pre id="aus">-</pre>
+<script>
+async function skill(name, args = {}) {
+  const r = await fetch("/api/skill", { method: "POST", headers: { "Content-Type": "application/json", "X-RF": "1" },
+                                       body: JSON.stringify({ name, args }) });
+  const j = await r.json();
+  document.getElementById("aus").textContent = JSON.stringify(j.ergebnis ?? j, null, 2);
+}
+</script>
+</body>
+</html>

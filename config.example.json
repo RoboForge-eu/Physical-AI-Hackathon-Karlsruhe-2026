@@ -1,0 +1,34 @@
+{
+ "follower": {
+  "usb_serial": "",
+  "port": null,
+  "label": "Setup 1",
+  "cameras": [
+   1,
+   2
+  ]
+ },
+ "leader": {
+  "usb_serial": "",
+  "port": null
+ },
+ "baud": 1000000,
+ "cameras": [
+  {
+   "name": "Setup 1 · Arm",
+   "device": ""
+  },
+  {
+   "name": "Setup 1 · Turm",
+   "device": ""
+  },
+  {
+   "name": "frei 3",
+   "device": ""
+  },
+  {
+   "name": "frei 4",
+   "device": ""
+  }
+ ]
+}
