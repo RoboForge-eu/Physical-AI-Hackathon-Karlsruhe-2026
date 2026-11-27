@@ -45,7 +45,7 @@ header.kopf {
   background: var(--panel); border-bottom: 1px solid var(--linie);
 }
 .marke { width: var(--leiste); height: 100%; display: grid; place-items: center; border-right: 1px solid var(--linie); }
-.marke svg { width: 22px; height: 22px; }
+.marke img { width: 34px; height: auto; display: block; }
 .titel { display: flex; flex-direction: column; line-height: 1.15; }
 .titel small { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
 .titel b { font-size: 13px; font-weight: 600; }

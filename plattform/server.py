@@ -265,6 +265,8 @@ class Handler(BaseHTTPRequestHandler):
             p = url.path
             if p in ("/", "/index.html"):
                 return self._file(os.path.join(STATIC, "index.html"))
+            if p == "/favicon.ico":
+                return self._file(os.path.join(STATIC, "favicon.ico"))
             if p.startswith("/static/"):
                 return self._file(kern.sicherer_pfad(STATIC, p[len("/static/"):]))
             if p.startswith("/team-ui/"):
