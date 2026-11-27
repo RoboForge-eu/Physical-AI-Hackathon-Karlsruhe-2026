@@ -21,6 +21,7 @@
   --mono: ui-monospace, "JetBrains Mono", "Cascadia Mono", Consolas, Menlo, monospace;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html { scroll-behavior: smooth; scroll-padding-top: calc(var(--kopf) + 10px); }
 body {
   margin: 0; background: var(--bg); color: var(--text);
