@@ -31,8 +31,23 @@ def icon(bg, waves):
     return im
 
 
-for name, bg, waves in (("harness", "#003399", False), ("fernsteuerung", "#ff6a00", True)):
-    im = icon(bg, waves)
+def plattform_icon():
+    """Physical AI Harness: dunkle Kachel, gelber Rahmen, 'AI' in Gelb."""
+    im = Image.new("RGBA", (S, S), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    d.rounded_rectangle((40, 40, S - 40, S - 40), radius=220, fill="#16181b", outline="#e8b230", width=56)
+    f = ImageFont.truetype(FONT, 500)
+    try:
+        f.set_variation_by_name("Bold")
+    except Exception:
+        pass
+    d.text((S // 2, 500), "AI", font=f, fill="#e8b230", anchor="mm")
+    d.rounded_rectangle((250, 800, S - 250, 850), radius=25, fill="#e8b230")
+    return im
+
+
+for name, bg, waves in (("harness", "#003399", False), ("fernsteuerung", "#ff6a00", True), ("plattform", None, None)):
+    im = plattform_icon() if name == "plattform" else icon(bg, waves)
     im.save(os.path.join(HERE, name + ".ico"), sizes=[(s, s) for s in (16, 24, 32, 48, 64, 128, 256)])
     im.resize((256, 256), Image.LANCZOS).save(os.path.join(HERE, name + ".png"))
 print("ok")

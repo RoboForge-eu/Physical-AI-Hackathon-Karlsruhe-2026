@@ -392,6 +392,6 @@ def serve(port=PORT, open_browser=True):
     url = f"http://127.0.0.1:{port}/"
     print(f"Physical AI Harness laeuft: {url}", flush=True)
     if open_browser:
-        import webbrowser
-        threading.Timer(0.8, lambda: webbrowser.open(url)).start()
+        from .fenster import oeffnen
+        threading.Timer(0.8, lambda: oeffnen(url)).start()
     httpd.serve_forever()

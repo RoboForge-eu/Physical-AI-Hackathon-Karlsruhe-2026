@@ -3,9 +3,10 @@
   python physical_ai_harness.py            -> Oberflaeche starten und Browser oeffnen
   python physical_ai_harness.py --harness  -> zusaetzlich den Harness (Arme, Kameras) starten, falls er nicht laeuft
 
-Laeuft die Oberflaeche schon, wird nur der Browser geoeffnet.
+Oeffnet sich als eigenes App-Fenster (Edge/Chrome ohne Adressleiste). Laeuft die Oberflaeche schon,
+wird nur das Fenster geoeffnet.
 """
-import socket, sys, webbrowser
+import socket, sys
 
 from plattform import PORT
 
@@ -29,7 +30,9 @@ def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
     config_anlegen()
     if laeuft_schon():
-        webbrowser.open(f"http://127.0.0.1:{PORT}/")
+        if "--ohne-browser" not in argv:
+            from plattform.fenster import oeffnen
+            oeffnen(f"http://127.0.0.1:{PORT}/")
         return 0
     from plattform import server
     if "--harness" in argv:

@@ -29,7 +29,8 @@ $sh = New-Object -ComObject WScript.Shell
 $start = Join-Path ([Environment]::GetFolderPath("Programs")) "RoboForge"
 New-Item -ItemType Directory -Force $start | Out-Null
 $desk = [Environment]::GetFolderPath("Desktop")
-foreach ($a in @(@{n="RoboForge Harness"; s="ros.py"; i="harness"}, @{n="RoboForge Fernsteuerung"; s="fernsteuerung.py"; i="fernsteuerung"})) {
+foreach ($a in @(@{n="RoboForge Harness"; s="ros.py"; i="harness"}, @{n="RoboForge Fernsteuerung"; s="fernsteuerung.py"; i="fernsteuerung"},
+                 @{n="Physical AI Harness"; s="physical_ai_harness.py"; i="plattform"})) {
   foreach ($dir in @($start, $desk)) {
     $lnk = Join-Path $dir "$($a.n).lnk"
     $l = $sh.CreateShortcut($lnk)
