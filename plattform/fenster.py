@@ -38,9 +38,13 @@ def browser_finden():
 
 
 def befehl(url, exe):
-    profil = os.path.join(DATEN, "fenster")         # eigenes Profil: eigenes Fenster, eigene Taskleisten-Gruppe
+    profil = os.path.join(DATEN, "app-fenster")     # eigenes Profil: eigenes Fenster, eigene Taskleisten-Gruppe
+    # Eigenes, leeres Profil ohne Anmeldung: Edge meldet neue Profile sonst automatisch mit dem Windows-Konto an
+    # und zeigt Sync-Hinweise ("Wir synchronisieren jetzt Ihre Browserdaten ..."). Fuer die App unnoetig.
     return [exe, f"--app={url}", f"--user-data-dir={profil}", "--window-size=1500,950",
-            "--no-first-run", "--no-default-browser-check"]
+            "--no-first-run", "--no-default-browser-check", "--disable-sync",
+            "--disable-features=msImplicitSignin,msEdgeSyncConsent,msShowSyncPromo,SigninPromo",
+            "--disable-signin-promo"]
 
 
 def oeffnen(url):
