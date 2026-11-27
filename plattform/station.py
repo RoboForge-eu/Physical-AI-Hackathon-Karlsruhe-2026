@@ -19,7 +19,7 @@ from . import KIT, PAKETE, DATEN
 from .kern import slug, _write, _read
 
 ORG = "RoboForge"
-REPO = "https://github.com/RoboForge-eu/Physical-AI-Hackathon-28.11.26-Karlsruhe-"
+REPO = "https://github.com/RoboForge-eu/Physical-AI-Hackathon-Karlsruhe-2026"
 DATIERT = re.compile(r"_\d{4}-\d{2}-\d{2}_\d+\.json$")
 
 
